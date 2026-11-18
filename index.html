@@ -158,6 +158,14 @@ body.showres #results{opacity:1;visibility:visible}
 .know p{font-size:14.5px;line-height:1.55;opacity:.88}
 .know a{display:inline-block;margin-top:10px;font-size:13px;font-weight:600;color:#fff;opacity:.8;text-decoration:none}
 .know a:hover{opacity:1}
+
+.site-link{display:flex;align-items:center;gap:13px;padding:12px 18px;border-radius:20px;text-decoration:none;color:#fff}
+.site-link .s-ico{width:30px;height:30px;border-radius:9px;background:rgba(255,255,255,.18);display:grid;place-items:center;flex:none;overflow:hidden;font-size:14px;font-weight:700}
+.site-link .s-ico img{width:20px;height:20px;object-fit:contain;display:block}
+.site-link .s-info{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px}
+.site-link .s-name{font-size:15.5px;font-weight:600;line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.site-link .s-url{font-size:12.5px;opacity:.68;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.site-link .s-arr{font-size:15px;opacity:.65;flex:none}
 .note h3{font-size:17px;font-weight:600;margin-bottom:8px}
 .note p{font-size:14.5px;line-height:1.55;opacity:.85;margin-bottom:14px}
 .chips{display:flex;flex-wrap:wrap;gap:8px}
@@ -676,20 +684,26 @@ async function run(qs, push = true){
   head.append(mark, meta);
 
   const tabs = buildTabs();
-  const kn = el("div","kn"), list = el("div","list"), sent = el("div","sent"), foot = el("div","foot");
+  const kn = el("div","kn"), wikiSlot = el("div"), ddgSlot = el("div");
+  kn.append(wikiSlot, ddgSlot);
+  const list = el("div","list"), sent = el("div","sent"), foot = el("div","foot");
   foot.append(el("div","lbl",t().moreOn), chips(qs));
   box.append(head, tabs, kn, list, sent, foot);
 
   for (let i=0;i<3;i++){ const s = el("article","card glass sk"); s.innerHTML = "<i></i><i></i><i></i><i></i>"; list.appendChild(s); reveal(s,i); }
 
   if (activeCat === "general"){
-    if (S.know) wiki(qs).then(p => {
+    if (S.know) wiki(qs).then(async p => {
       if (my !== token || !p) return;
-      const c = knowCard(p); kn.appendChild(c); reveal(c,0);
+      const c = knowCard(p); wikiSlot.appendChild(c); reveal(c,0);
+      const siteUrl = await wikiSiteLink(p);
+      if (my !== token || !siteUrl) return;
+      const sc = siteLinkCard(p.title, siteUrl);
+      wikiSlot.appendChild(sc); reveal(sc,1);
     }).catch(()=>{});
     if (S.ddg) ddg(qs).then(d => {
       if (my !== token || !d) return;
-      const c = ddgCard(d); kn.appendChild(c); reveal(c,1);
+      const c = ddgCard(d); ddgSlot.appendChild(c); reveal(c,1);
     }).catch(()=>{});
   }
 
@@ -709,7 +723,7 @@ function closeResults(){
 }
 
 async function wiki(qs){
-  const u = `https://${wl()}.wikipedia.org/w/api.php?action=query&generator=search&gsrsearch=${encodeURIComponent(qs)}&gsrlimit=1&prop=extracts|pageimages|info&exintro=1&explaintext=1&exsentences=3&piprop=thumbnail&pithumbsize=240&inprop=url&format=json&origin=*`;
+  const u = `https://${wl()}.wikipedia.org/w/api.php?action=query&generator=search&gsrsearch=${encodeURIComponent(qs)}&gsrlimit=1&prop=extracts|pageimages|info|pageprops&exintro=1&explaintext=1&exsentences=3&piprop=thumbnail&pithumbsize=240&inprop=url&ppprop=wikibase_item&format=json&origin=*`;
   const r = await fetch(u, {credentials:"omit", referrerPolicy:"no-referrer"});
   const j = await r.json();
   const pages = j.query && Object.values(j.query.pages || {});
@@ -719,6 +733,40 @@ async function wiki(qs){
   const toks = qs.toLowerCase().split(/\s+/).filter(x => x.length > 2), title = p.title.toLowerCase();
   if (toks.length && !toks.some(x => title.includes(x) || x.includes(title))) return null;
   return p;
+}
+async function wikiSiteLink(p){
+  const qid = p.pageprops && p.pageprops.wikibase_item;
+  if (!qid) return null;
+  try {
+    const r = await fetch(`https://www.wikidata.org/w/api.php?action=wbgetclaims&entity=${encodeURIComponent(qid)}&property=P856&format=json&origin=*`, {credentials:"omit", referrerPolicy:"no-referrer"});
+    const j = await r.json();
+    const claims = j.claims && j.claims.P856;
+    if (!claims || !claims.length) return null;
+    const pref = claims.find(c => c.rank === "preferred") || claims[0];
+    const val = pref && pref.mainsnak && pref.mainsnak.datavalue && pref.mainsnak.datavalue.value;
+    return (typeof val === "string" && /^https?:\/\//i.test(val)) ? val : null;
+  } catch(e){ return null; }
+}
+function siteLinkCard(title, url){
+  let host = url.replace(/^https?:\/\/(www\.)?/i, "").replace(/\/$/, "");
+  let domain = host;
+  try { domain = new URL(url).hostname; } catch(e){}
+  const a = el("a","card glass res site-link");
+  a.href = url; a.target = "_blank"; a.rel = "noopener noreferrer";
+
+  const ico = el("span","s-ico");
+  const im = document.createElement("img");
+  im.alt = ""; im.loading = "lazy"; im.referrerPolicy = "no-referrer";
+  im.src = `https://www.google.com/s2/favicons?domain=${encodeURIComponent(domain)}&sz=64`;
+  im.onerror = () => { ico.textContent = (domain.replace(/^www\./,"")[0] || "?").toUpperCase(); };
+  ico.appendChild(im);
+
+  const info = el("div","s-info");
+  info.append(el("span","s-name", title), el("span","s-url", host));
+
+  const arr = el("span","s-arr", "↗");
+  a.append(ico, info, arr);
+  return a;
 }
 function knowCard(p){
   const c = el("article","card glass know");
@@ -754,7 +802,7 @@ function ddgCard(d){
     c.appendChild(im);
   }
   const b = el("div");
-  b.appendChild(el("h3","", "DuckDuckGo"));
+  b.append(el("h3","", "DuckDuckGo"));
   if (d.Answer) b.append(el("p","", d.Answer));
   else if (d.Definition) b.append(el("p","", d.Definition));
   else if (d.AbstractText) b.append(el("p","", d.AbstractText));
