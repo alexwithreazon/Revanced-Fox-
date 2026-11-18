@@ -129,10 +129,20 @@ body.compact #sbox:focus-within{max-width:640px}
 #results::-webkit-scrollbar{display:none}
 body.showres #results{opacity:1;visibility:visible}
 .wrap{width:min(720px,100%);margin:0 auto;padding:6px 16px calc(120px + env(safe-area-inset-bottom))}
-.rhead{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:10px 6px 20px}
+.rhead{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:10px 6px 14px}
 .fbmark{display:flex;align-items:center;gap:7px;font-family:var(--serif);font-weight:800;font-size:23px;letter-spacing:-.01em}
 .fbmark svg{width:21px;height:21px}
 .rmeta{font-size:13px;opacity:.65}
+
+/* Such-Tabs */
+#tabs{display:flex;gap:4px;margin:4px 0 18px;padding:4px;width:max-content;max-width:100%;
+  overflow-x:auto;scrollbar-width:none;border-radius:16px;
+  background:rgba(255,255,255,.08);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
+#tabs::-webkit-scrollbar{display:none}
+#tabs button{padding:8px 16px;border-radius:12px;font-size:14px;font-weight:500;
+  opacity:.72;white-space:nowrap;transition:.2s}
+#tabs button:hover{opacity:1;background:rgba(255,255,255,.1)}
+#tabs button.on{background:rgba(255,255,255,.25);opacity:1;box-shadow:inset 0 1px 0 rgba(255,255,255,.4)}
 
 .card{border-radius:26px;padding:18px 20px;margin-bottom:14px;opacity:0;transform:translateY(28px) scale(.97);
   transition:opacity .6s cubic-bezier(.2,.8,.2,1) var(--d,0ms),transform .75s var(--ease) var(--d,0ms),background .25s,box-shadow .25s}
@@ -144,6 +154,13 @@ body.showres #results{opacity:1;visibility:visible}
 .res .t{display:block;font-size:19px;font-weight:600;line-height:1.3;color:#fff;text-decoration:none;margin-bottom:6px;overflow-wrap:anywhere}
 .res .t:hover{text-decoration:underline;text-underline-offset:3px}
 .res p{font-size:14.5px;line-height:1.55;opacity:.84}
+
+/* Bild-/Video-Thumbnails */
+.res.imgres{display:flex;gap:14px;align-items:flex-start}
+.res.imgres .thumb{width:120px;height:80px;border-radius:12px;object-fit:cover;background:rgba(255,255,255,.06);flex:none}
+.res.imgres .rcontent{flex:1;min-width:0}
+@media(max-width:560px){.res.imgres .thumb{width:80px;height:60px}}
+
 .know{display:flex;gap:16px;align-items:flex-start}
 .know img{width:96px;height:96px;object-fit:cover;border-radius:18px;flex:none;box-shadow:0 6px 24px rgba(0,0,0,.25)}
 .know h3{font-family:var(--serif);font-weight:800;font-size:23px;letter-spacing:-.01em;margin-bottom:6px;line-height:1.15}
@@ -170,9 +187,13 @@ body.showres #results{opacity:1;visibility:visible}
 #totop.show{opacity:1;transform:none;pointer-events:auto}
 #totop svg{width:20px;height:20px}
 
+/* Screenreader-only */
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;
+  clip:rect(0,0,0,0);white-space:nowrap;border:0}
+
 /* ---------- Einstellungen ---------- */
-#panel{position:fixed;top:calc(76px + env(safe-area-inset-top));right:16px;width:min(370px,calc(100vw - 32px));
-  max-height:calc(100dvh - 96px - env(safe-area-inset-top));overflow:auto;border-radius:28px;padding:20px;z-index:10;
+#panel{position:fixed;top:calc(var(--bar) + env(safe-area-inset-top));right:16px;width:min(370px,calc(100vw - 32px));
+  max-height:calc(100dvh - var(--bar) - 20px - env(safe-area-inset-top));overflow:auto;border-radius:28px;padding:20px;z-index:10;
   opacity:0;visibility:hidden;transform:translateY(-10px) scale(.96);transform-origin:top right;
   transition:opacity .25s,transform .3s cubic-bezier(.2,.9,.3,1.2),visibility .25s}
 #panel.open{opacity:1;visibility:visible;transform:none}
@@ -232,7 +253,8 @@ input[type=range]::-moz-range-thumb{width:22px;height:22px;border:0;border-radiu
 <div id="veil"></div>
 <div id="prog"></div>
 
-<section id="results" aria-live="polite"><div class="wrap" id="rbox"></div></section>
+<section id="results"><div class="wrap" id="rbox"></div></section>
+<div id="status" class="sr-only" aria-live="polite"></div>
 
 <div id="barBg"></div>
 
@@ -251,7 +273,7 @@ input[type=range]::-moz-range-thumb{width:22px;height:22px;border:0;border-radiu
   <div id="sbox">
     <form id="sf" class="glass search" autocomplete="off">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
-      <input id="q" type="text" name="q" enterkeyhint="search" autocapitalize="off" spellcheck="false" autocomplete="off">
+      <input id="q" type="text" name="q" enterkeyhint="search" autocapitalize="off" spellcheck="false" autocomplete="off" aria-label="Web durchsuchen">
       <kbd>/</kbd>
       <button class="go" type="submit" aria-label="Suchen">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
@@ -317,7 +339,10 @@ const T = {
       g:["Gute Nacht","Guten Morgen","Guten Tag","Guten Abend"],
       resFor:"Ergebnisse für",via:"über",noTitle:"Keine Webergebnisse erreichbar",
       noBody:"Öffentliche SearXNG-Instanzen blockieren Abfragen von fremden Webseiten oft. Trag in den Einstellungen eine eigene oder passende Instanz ein, oder such direkt bei diesen Diensten weiter:",
-      setInst:"Instanz einstellen",moreOn:"Weitersuchen bei",end:"Keine weiteren Ergebnisse",wiki:"Auf Wikipedia lesen"},
+      setInst:"Instanz einstellen",moreOn:"Weitersuchen bei",end:"Keine weiteren Ergebnisse",wiki:"Auf Wikipedia lesen",
+      catAll:"Alle",catImg:"Bilder",catNews:"News",catVid:"Videos",catForum:"Foren",
+      noForums:"Für Foren-Suche müssen in SearXNG die Engines reddit, stackoverflow etc. aktiviert sein (settings.yml).",
+      loading:"Lädt…"},
   en:{settings:"Settings",general:"General",name:"Your name",lang:"Language",greet:"Greeting",h12:"12-hour clock",sec:"Seconds",
       sugg:"Search suggestions",know:"Knowledge card (Wikipedia)",instPh:"Your own SearXNG instance (optional)",
       instHint:"FireBrave fetches web results from a SearXNG instance (open source, no tracking). The instance must allow the JSON format. Without an entry, public instances are tried in turn.",
@@ -327,7 +352,10 @@ const T = {
       g:["Good night","Good morning","Good afternoon","Good evening"],
       resFor:"Results for",via:"via",noTitle:"No web results reachable",
       noBody:"Public SearXNG instances often block requests from other websites. Add your own or a suitable instance in settings, or keep searching directly at these services:",
-      setInst:"Set instance",moreOn:"Keep searching on",end:"No more results",wiki:"Read on Wikipedia"}
+      setInst:"Set instance",moreOn:"Keep searching on",end:"No more results",wiki:"Read on Wikipedia",
+      catAll:"All",catImg:"Images",catNews:"News",catVid:"Videos",catForum:"Forums",
+      noForums:"Forum search requires reddit, stackoverflow etc. enabled in SearXNG (settings.yml).",
+      loading:"Loading…"}
 };
 
 const WALLS = [
@@ -345,6 +373,16 @@ const FX = ["none","snow","rain","stars","fireflies"];
 /* Öffentliche SearXNG-Instanzen (können sich ändern oder CORS/JSON blockieren) */
 const DEFAULT_INSTANCES = ["https://searx.be","https://search.inetol.net","https://priv.au","https://searx.tiekoetter.com"];
 
+/* Such-Kategorien: [id, SearXNG-Kategorie, optionale Engine-Whitelist] */
+const CATS = [
+  { id:"general", cat:"general" },
+  { id:"images",  cat:"images" },
+  { id:"news",    cat:"news" },
+  { id:"videos",  cat:"videos" },
+  { id:"forums",  cat:"general", engines:"reddit,stackoverflow,askubuntu,superuser,hackernews,lemmy" }
+];
+const catLabel = id => ({ general:t().catAll, images:t().catImg, news:t().catNews, videos:t().catVid, forums:t().catForum }[id]);
+
 /* ====== State ====== */
 const DEF = {name:"",lang:"de",h12:false,sec:false,greet:true,wall:"dusk",url:"",fx:"snow",amount:45,dim:0,blur:0,instance:"",sugg:true,know:true};
 let S = {...DEF};
@@ -354,7 +392,7 @@ const $ = id => document.getElementById(id);
 const t = () => T[S.lang] || T.de;
 const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
 
-let compact = false, showingResults = false, token = 0, working = null;
+let compact = false, showingResults = false, token = 0, working = null, activeCat = "general";
 
 /* ====== IndexedDB ====== */
 const idb = {
@@ -390,7 +428,9 @@ function showMedia(url, video){
     v.src = url; v.autoplay = v.loop = v.muted = v.playsInline = true; v.setAttribute("muted","");
     media.appendChild(v); v.play().catch(()=>{});
   } else {
-    media.style.background = `center/cover no-repeat url("${url.replace(/"/g,"%22")}")`;
+    // Backslash, Anführungszeichen und Zeilenumbrüche escapen, damit aus der URL kein CSS-String-Injection wird.
+    const safe = url.replace(/\\/g,"\\\\").replace(/"/g,'\\"').replace(/[\r\n]/g,"");
+    media.style.background = `center/cover no-repeat url("${safe}")`;
   }
 }
 async function applyWall(){
@@ -427,7 +467,7 @@ function fit(){
   const dpr = Math.min(devicePixelRatio||1, 2);
   W = innerWidth; H = innerHeight;
   cv.width = W*dpr; cv.height = H*dpr; cx.setTransform(dpr,0,0,dpr,0,0);
-  initFx();
+  // Kein initFx() hier – sonst doppelt, weil applyFx() ebenfalls initFx() aufruft.
 }
 function initFx(){
   P = [];
@@ -583,30 +623,57 @@ addEventListener("keydown", e => {
 
 /* ====== FireBrave: Ergebnisse ====== */
 const FLAME = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg>';
+
 let io, cur = null;
-const io2 = new IntersectionObserver(es => { if (cur && es.some(x => x.isIntersecting)) loadWeb(cur); }, {root:resEl, rootMargin:"500px 0px"});
+const io2 = new IntersectionObserver(es => {
+  if (cur && es.some(x => x.isIntersecting)) loadWeb(cur);
+}, { root:resEl, rootMargin:"500px 0px" });
+
 function mkIO(){
   if (io) io.disconnect();
   io = new IntersectionObserver(es => es.forEach(en => {
     if (!en.isIntersecting) return;
     en.target.classList.add("in"); io.unobserve(en.target);
     setTimeout(() => en.target.style.setProperty("--d","0ms"), 1400);
-  }), {root:resEl, rootMargin:"0px 0px -4% 0px", threshold:.05});
+  }), { root:resEl, rootMargin:"0px 0px -4% 0px", threshold:.05 });
 }
 function reveal(card, i){ card.style.setProperty("--d", Math.min(i,7)*80 + "ms"); io.observe(card); }
 
+function buildTabs(){
+  const nav = el("nav"); nav.id = "tabs"; nav.setAttribute("role","tablist");
+  CATS.forEach(c => {
+    const b = el("button","",catLabel(c.id));
+    b.dataset.cat = c.id; b.setAttribute("role","tab");
+    b.classList.toggle("on", c.id === activeCat);
+    b.onclick = () => {
+      if (c.id === activeCat || !cur) return;
+      activeCat = c.id;
+      try { history.replaceState({q:cur.q, cat:activeCat}, "", "?q=" + encodeURIComponent(cur.q) + (activeCat !== "general" ? "&cat=" + activeCat : "")); } catch(e){}
+      run(cur.q, false);
+    };
+    nav.appendChild(b);
+  });
+  return nav;
+}
+
 function externalLinks(qs){
-  const e = encodeURIComponent(qs), base = (S.instance || working || DEFAULT_INSTANCES[0]).replace(/\/+$/,"");
+  const e = encodeURIComponent(qs);
+  let abs;
+  try { abs = new URL(S.instance || working || DEFAULT_INSTANCES[0], location.href).href.replace(/\/+$/,""); }
+  catch(err){ abs = DEFAULT_INSTANCES[0]; }
   return [
+    ["Wikipedia", `https://${wl()}.wikipedia.org/w/index.php?search=` + e],
     ["Mojeek", "https://www.mojeek.com/search?q=" + e],
     ["Marginalia", "https://search.marginalia.nu/search?query=" + e],
-    ["SearXNG", base + "/search?q=" + e],
-    ["Wikipedia", `https://${wl()}.wikipedia.org/w/index.php?search=` + e]
+    ["SearXNG", abs + "/search?q=" + e]
   ];
 }
 function chips(qs){
   const c = el("div","chips");
-  externalLinks(qs).forEach(([n,u]) => { const a = el("a","chip glass",n); a.href = u; a.target = "_blank"; a.rel = "noopener noreferrer"; c.appendChild(a); });
+  externalLinks(qs).forEach(([n,u]) => {
+    const a = el("a","chip glass",n); a.href = u; a.target = "_blank"; a.rel = "noopener noreferrer";
+    c.appendChild(a);
+  });
   return c;
 }
 
@@ -615,37 +682,42 @@ async function run(qs, push = true){
   q.value = qs; sf.classList.add("has-text");
   setCompact(true); hideSugg(); sItems = [];
   if (isTouch || push) q.blur();
-  if (push){ try { history.pushState({q:qs}, "", "?q=" + encodeURIComponent(qs)); } catch(e){} }
+  if (push){ try { history.pushState({q:qs, cat:activeCat}, "", "?q=" + encodeURIComponent(qs) + (activeCat !== "general" ? "&cat=" + activeCat : "")); } catch(e){} }
   document.title = qs + " – FireBrave";
   showingResults = true; document.body.classList.add("showres");
-  resEl.scrollTop = 0; mkIO();
-  box.innerHTML = "";
+  resEl.scrollTop = 0; mkIO(); box.innerHTML = "";
 
   const head = el("div","rhead");
   const mark = el("div","fbmark"); mark.innerHTML = FLAME; mark.append(document.createTextNode("FireBrave"));
   const meta = el("div","rmeta", `${t().resFor} „${qs}“`);
   head.append(mark, meta);
+
+  const tabs = buildTabs();
   const kn = el("div","kn"), list = el("div","list"), sent = el("div","sent"), foot = el("div","foot");
   foot.append(el("div","lbl",t().moreOn), chips(qs));
-  box.append(head, kn, list, sent, foot);
+  box.append(head, tabs, kn, list, sent, foot);
 
   for (let i=0;i<3;i++){ const s = el("article","card glass sk"); s.innerHTML = "<i></i><i></i><i></i><i></i>"; list.appendChild(s); reveal(s,i); }
 
-  if (S.know) wiki(qs).then(p => {
-    if (my !== token || !p) return;
-    const c = knowCard(p); kn.appendChild(c); reveal(c,0);
-  }).catch(()=>{});
+  if (S.know && activeCat === "general"){
+    wiki(qs).then(p => {
+      if (my !== token || !p) return;
+      const c = knowCard(p); kn.appendChild(c); reveal(c,0);
+    }).catch(()=>{});
+  }
 
-  cur = {q:qs, page:0, done:false, loading:false, count:0, seen:new Set(), my, list, sent, meta};
+  cur = { q:qs, cat:activeCat, page:0, done:false, loading:false, count:0, seen:new Set(), my, list, sent, meta };
   loadWeb(cur);
 }
 
 function closeResults(){
   showingResults = false; cur = null; token++;
   document.body.classList.remove("showres","scrolled");
-  $("wall").style.setProperty("--py","0px"); $("prog").style.transform = "scaleX(0)"; $("totop").classList.remove("show");
+  $("wall").style.setProperty("--py","0px");
+  $("prog").style.transform = "scaleX(0)";
+  $("totop").classList.remove("show");
   io2.disconnect(); tick();
-  try { if (location.search) history.pushState({}, "", location.pathname); } catch(e){}
+  try { if (location.search) history.replaceState(null, "", location.pathname); } catch(e){}
 }
 
 async function wiki(qs){
@@ -670,79 +742,156 @@ function knowCard(p){
   return c;
 }
 
-async function searx(qs, page){
-  let list;
-  if (S.instance) list = [S.instance];
-  else list = working ? [working, ...DEFAULT_INSTANCES.filter(x => x !== working)] : DEFAULT_INSTANCES;
-  for (const base of list){
-    const b = base.replace(/\/+$/,"");
-    const ctl = new AbortController(), to = setTimeout(() => ctl.abort(), 4500);
+async function searx(qs, opts = {}){
+  const { page = 1, cat = "general", engines = "" } = opts;
+  const params = new URLSearchParams({ q:qs, format:"json", pageno:String(page), language:wl() });
+  if (cat) params.set("categories", cat);
+  if (engines) params.set("engines", engines);
+
+  const raw = S.instance
+    ? [S.instance]
+    : (working ? [working, ...DEFAULT_INSTANCES.filter(x => x !== working)] : DEFAULT_INSTANCES);
+  const bases = raw.map(b => b.replace(/\/+$/,""));
+
+  let lastErr = null;
+  for (const b of bases){
+    const ctl = new AbortController(), to = setTimeout(() => ctl.abort(), 6000);
     try {
-      const r = await fetch(`${b}/search?q=${encodeURIComponent(qs)}&format=json&pageno=${page}&language=${wl()}`, {signal:ctl.signal, credentials:"omit", referrerPolicy:"no-referrer"});
+      const r = await fetch(`${b}/search?${params}`, { signal:ctl.signal, credentials:"omit", referrerPolicy:"no-referrer" });
       clearTimeout(to);
-      if (!r.ok) throw 0;
+      if (!r.ok) throw new Error("HTTP " + r.status);
       const j = await r.json();
-      if (!j || !Array.isArray(j.results)) throw 0;
+      if (!j || !Array.isArray(j.results)) throw new Error("bad JSON");
       working = b;
-      return {results:j.results, base:b};
-    } catch(e){ clearTimeout(to); if (working === b) working = null; if (page > 1) break; }
+      return { results:j.results, base:b, answers:j.answers || [] };
+    } catch (e){
+      clearTimeout(to);
+      lastErr = e;
+      // working nur auf Seite 1 verwerfen – sonst killst du Pagination wegen eines Timeouts
+      if (page === 1 && working === b) working = null;
+    }
   }
-  return null;
+  return { error: lastErr ? String(lastErr.message || lastErr) : "no instance" };
 }
 
-function webCard(r){
+function webCard(r, cat){
   let host = "", path = "";
-  try { const u = new URL(r.url); if (!/^https?:$/.test(u.protocol)) return null; host = u.hostname.replace(/^www\./,""); path = decodeURIComponent(u.pathname).replace(/\/$/,""); } catch(e){ return null; }
+  try {
+    const u = new URL(r.url);
+    if (!/^https?:$/.test(u.protocol)) return null;
+    host = u.hostname.replace(/^www\./, "");
+    path = decodeURIComponent(u.pathname).replace(/\/$/, "");
+  } catch(e){ return null; }
+
   const c = el("article","card glass res");
-  const u = el("div","u"), fav = el("span","fav", host[0] || "?");
-  u.append(fav, el("span","", host + (path && path !== "/" ? " › " + path.slice(1).split("/").join(" › ") : "")));
-  const a = el("a","t", r.title || host); a.href = r.url; a.target = "_blank"; a.rel = "noopener noreferrer";
-  c.append(u, a);
-  if (r.content) c.appendChild(el("p","", r.content));
+
+  const u = el("div","u");
+  const letter = (host[0] || "?").toUpperCase();
+  const fav = el("span","fav", letter);
+  // Deterministische Farbe je Host – sonst immer gleiches Grau
+  let h = 0; for (const ch of host) h = (h*31 + ch.charCodeAt(0)) | 0;
+  fav.style.background = `hsl(${(h % 360 + 360) % 360} 45% 45% / .75)`;
+  const pShort = path && path !== "/" ? " › " + path.slice(1).split("/").slice(0,2).join(" › ") : "";
+  u.append(fav, el("span","", host + pShort));
+
+  const a = el("a","t", r.title || host);
+  a.href = r.url; a.target = "_blank"; a.rel = "noopener noreferrer";
+
+  const showThumb = (cat === "images" || cat === "videos") && (r.thumbnail || r.img_src);
+  if (showThumb){
+    const im = el("img","thumb");
+    im.loading = "lazy"; im.referrerPolicy = "no-referrer";
+    im.src = r.thumbnail || r.img_src;
+    const content = el("div","rcontent");
+    content.append(u, a);
+    if (r.content) content.appendChild(el("p","", r.content));
+    c.classList.add("imgres");
+    c.append(im, content);
+  } else {
+    c.append(u, a);
+    if (r.content) c.appendChild(el("p","", r.content));
+  }
   return c;
 }
 
 async function loadWeb(st){
   if (st.loading || st.done || st.my !== token) return;
   st.loading = true; st.page++;
-  const data = await searx(st.q, st.page);
+  const statusEl = $("status"); if (statusEl) statusEl.textContent = t().loading;
+
+  const catCfg = CATS.find(c => c.id === st.cat) || CATS[0];
+  const data = await searx(st.q, { page:st.page, cat:catCfg.cat, engines:catCfg.engines || "" });
   if (st.my !== token) return;
+
   if (st.page === 1) st.list.innerHTML = "";
-  if (!data){
+
+  if (data.error){
     st.done = true; st.loading = false;
     if (st.page === 1){
       const n = el("article","card glass note");
       n.append(el("h3","",t().noTitle), el("p","",t().noBody));
-      const btn = el("button","btn",t().setInst); btn.style.marginBottom = "14px";
+      const btn = el("button","btn", t().setInst);
+      btn.style.marginBottom = "14px";
       btn.onclick = () => { setPanel(true); setTimeout(() => $("inInst").focus(), 300); };
-      n.append(btn, chips(st.q)); st.list.appendChild(n); reveal(n,0);
+      n.append(btn, chips(st.q));
+      st.list.appendChild(n); reveal(n, 0);
       st.meta.textContent = `${t().resFor} „${st.q}“`;
+      if (statusEl) statusEl.textContent = t().noTitle;
     }
     return;
   }
-  st.meta.textContent = `${t().resFor} „${st.q}“ · ${t().via} ${new URL(data.base).hostname}`;
+
+  let host = "";
+  try { host = new URL(data.base, location.href).hostname; } catch(e){ host = "lokal"; }
+  st.meta.textContent = `${t().resFor} „${st.q}“ · ${t().via} ${host || "lokal"}`;
+
   let added = 0;
+
+  // SearXNG liefert manchmal direkte Antworten (Taschenrechner, Wetter etc.)
+  if (st.page === 1 && data.answers.length){
+    const a = el("article","card glass note");
+    data.answers.forEach(x => { if (x && x.answer) a.append(el("p","", x.answer)); });
+    if (a.textContent.trim()){ st.list.appendChild(a); reveal(a, 0); added++; }
+  }
+
   data.results.forEach(r => {
     if (!r.url || st.seen.has(r.url)) return;
-    const c = webCard(r); if (!c) return;
+    const c = webCard(r, st.cat); if (!c) return;
     st.seen.add(r.url); st.list.appendChild(c); reveal(c, added++);
   });
+
   st.count += added; st.loading = false;
+
   if (!added){
     st.done = true;
     if (st.count) st.list.appendChild(el("div","end",t().end));
-    else { const n = el("article","card glass note"); n.append(el("h3","",t().noTitle), chips(st.q)); st.list.appendChild(n); reveal(n,0); }
+    else {
+      const n = el("article","card glass note");
+      n.append(el("h3","", t().noTitle));
+      if (st.cat === "forums") n.append(el("p","", t().noForums));
+      n.append(chips(st.q));
+      st.list.appendChild(n); reveal(n, 0);
+    }
     io2.unobserve(st.sent);
+    if (statusEl) statusEl.textContent = t().end;
     return;
   }
+
   io2.unobserve(st.sent); io2.observe(st.sent);
+  if (statusEl) statusEl.textContent = `${st.count} ${t().resFor} ${st.q}`;
 }
 
 /* Verlauf: Zurück-Taste / ?q=… als Browser-Suchmaschine */
 addEventListener("popstate", e => {
   const s = e.state;
-  if (s && s.q) run(s.q, false);
-  else { q.value = ""; sf.classList.remove("has-text"); if (showingResults) closeResults(); setCompact(false); }
+  if (s && s.q){
+    activeCat = s.cat || "general";
+    run(s.q, false);
+  } else {
+    q.value = ""; sf.classList.remove("has-text");
+    if (showingResults) closeResults();
+    setCompact(false);
+  }
 });
 
 /* ====== Scroll-Animationen ====== */
@@ -773,6 +922,18 @@ function buildUI(){
   $("btnUpload").textContent = t().upload; $("inUrl").placeholder = t().url; $("btnReset").textContent = t().reset;
   document.documentElement.lang = S.lang;
 
+  // A11y: aria-labels für Inputs/Slider, die sonst keinen zugänglichen Namen hätten
+  $("cbGreet").setAttribute("aria-label", t().greet);
+  $("cbH12").setAttribute("aria-label", t().h12);
+  $("cbSec").setAttribute("aria-label", t().sec);
+  $("cbSugg").setAttribute("aria-label", t().sugg);
+  $("cbKnow").setAttribute("aria-label", t().know);
+  $("rgAmount").setAttribute("aria-label", t().amount);
+  $("rgDim").setAttribute("aria-label", t().dim);
+  $("rgBlur").setAttribute("aria-label", t().blur);
+  $("inInst").setAttribute("aria-label", t().instPh);
+  $("inUrl").setAttribute("aria-label", t().url);
+
   const walls = $("walls"); walls.innerHTML = "";
   WALLS.forEach(w => {
     const b = document.createElement("button"); b.className = "wsw"; b.dataset.id = w.id; b.title = w.n;
@@ -800,8 +961,10 @@ $("segLang").querySelectorAll("button").forEach(b => b.onclick = () => { S.lang 
 $("inInst").value = S.instance;
 $("inInst").addEventListener("change", e => {
   let v = e.target.value.trim();
-  if (v && !/^https?:\/\//i.test(v)) v = "https://" + v;
-  e.target.value = v; S.instance = v.replace(/\/+$/,""); working = null; save();
+  // Relative Pfade (z. B. "/searx") zulassen – sonst https:// voranstellen
+  if (v && !/^(https?:\/\/|\/)/i.test(v)) v = "https://" + v;
+  e.target.value = v;
+  S.instance = v.replace(/\/+$/,""); working = null; save();
   if (showingResults && q.value.trim()) run(q.value.trim(), false);
 });
 $("rgAmount").value = S.amount; $("rgAmount").oninput = e => { S.amount = +e.target.value; save(); initFx(); };
@@ -828,10 +991,13 @@ $("btnReset").onclick = async () => {
 
 /* ====== Start ====== */
 buildUI(); tick(); fit(); applyWall(); applyLook(); applyFx();
-const initial = new URLSearchParams(location.search).get("q");
+const _params = new URLSearchParams(location.search);
+const initial = _params.get("q");
+const initialCat = _params.get("cat") || "general";
 if (initial && initial.trim()){
+  activeCat = CATS.some(c => c.id === initialCat) ? initialCat : "general";
   document.body.classList.add("compact"); compact = true;
-  try { history.replaceState({q:initial.trim()}, "", location.href); } catch(e){}
+  try { history.replaceState({q:initial.trim(), cat:activeCat}, "", location.href); } catch(e){}
   run(initial.trim(), false);
 }
 })();
