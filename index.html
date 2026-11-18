@@ -166,6 +166,7 @@ body.showres #results{opacity:1;visibility:visible}
 .site-link .s-name{font-size:15.5px;font-weight:600;line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .site-link .s-url{font-size:12.5px;opacity:.68;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .site-link .s-arr{font-size:15px;opacity:.65;flex:none}
+
 .note h3{font-size:17px;font-weight:600;margin-bottom:8px}
 .note p{font-size:14.5px;line-height:1.55;opacity:.85;margin-bottom:14px}
 .chips{display:flex;flex-wrap:wrap;gap:8px}
@@ -378,7 +379,7 @@ const FX = ["none","snow","rain","stars","fireflies"];
 
 const CATS = [
   { id:"general", cat:"general", needsSearx:false },
-  { id:"images",  cat:"images",  needsSearx:true  },
+  { id:"images",  cat:"images",  needsSearx:true, engines:"qwant,wikimedia" },
   { id:"news",    cat:"news",    needsSearx:true  },
   { id:"videos",  cat:"videos",  needsSearx:true  },
   { id:"forums",  cat:"general", needsSearx:true, engines:"reddit,stackoverflow,askubuntu,superuser,hackernews,lemmy" }
@@ -696,7 +697,7 @@ async function run(qs, push = true){
     if (S.know) wiki(qs).then(async p => {
       if (my !== token || !p) return;
       const c = knowCard(p); wikiSlot.appendChild(c); reveal(c,0);
-      const siteUrl = await wikiSiteLink(p);
+      const siteUrl = await wikiDirectUrl(p.title);
       if (my !== token || !siteUrl) return;
       const sc = siteLinkCard(p.title, siteUrl);
       wikiSlot.appendChild(sc); reveal(sc,1);
@@ -723,7 +724,7 @@ function closeResults(){
 }
 
 async function wiki(qs){
-  const u = `https://${wl()}.wikipedia.org/w/api.php?action=query&generator=search&gsrsearch=${encodeURIComponent(qs)}&gsrlimit=1&prop=extracts|pageimages|info|pageprops&exintro=1&explaintext=1&exsentences=3&piprop=thumbnail&pithumbsize=240&inprop=url&ppprop=wikibase_item&format=json&origin=*`;
+  const u = `https://${wl()}.wikipedia.org/w/api.php?action=query&generator=search&gsrsearch=${encodeURIComponent(qs)}&gsrlimit=1&prop=extracts|pageimages|info&exintro=1&explaintext=1&exsentences=3&piprop=thumbnail&pithumbsize=240&inprop=url&format=json&origin=*`;
   const r = await fetch(u, {credentials:"omit", referrerPolicy:"no-referrer"});
   const j = await r.json();
   const pages = j.query && Object.values(j.query.pages || {});
@@ -734,19 +735,34 @@ async function wiki(qs){
   if (toks.length && !toks.some(x => title.includes(x) || x.includes(title))) return null;
   return p;
 }
-async function wikiSiteLink(p){
-  const qid = p.pageprops && p.pageprops.wikibase_item;
-  if (!qid) return null;
+
+async function wikiDirectUrl(query){
   try {
-    const r = await fetch(`https://www.wikidata.org/w/api.php?action=wbgetclaims&entity=${encodeURIComponent(qid)}&property=P856&format=json&origin=*`, {credentials:"omit", referrerPolicy:"no-referrer"});
+    const r = await fetch(`https://${wl()}.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(query)}&srlimit=1&format=json&origin=*`, {credentials:"omit", referrerPolicy:"no-referrer"});
     const j = await r.json();
-    const claims = j.claims && j.claims.P856;
-    if (!claims || !claims.length) return null;
-    const pref = claims.find(c => c.rank === "preferred") || claims[0];
-    const val = pref && pref.mainsnak && pref.mainsnak.datavalue && pref.mainsnak.datavalue.value;
-    return (typeof val === "string" && /^https?:\/\//i.test(val)) ? val : null;
+    const hit = j.query && j.query.search && j.query.search[0];
+    if (!hit) return null;
+    const title = hit.title;
+    
+    const r2 = await fetch(`https://${wl()}.wikipedia.org/w/api.php?action=parse&page=${encodeURIComponent(title)}&prop=text&section=0&format=json&origin=*`, {credentials:"omit", referrerPolicy:"no-referrer"});
+    const j2 = await r2.json();
+    const html = j2.parse && j2.parse.text && j2.parse.text["*"];
+    if (!html) return null;
+
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(html, "text/html");
+    const links = doc.querySelectorAll(".infobox a.external.text, .official-website a, a.external.text");
+    
+    for (const a of links){
+      const href = a.href;
+      if (href && /^https?:\/\//i.test(href) && !href.includes("wikipedia.org") && !href.includes("wikidata.org") && !href.includes("wikimedia.org") && !href.includes("ISBN") && !href.includes("Special:")) {
+        return href;
+      }
+    }
+    return null;
   } catch(e){ return null; }
 }
+
 function siteLinkCard(title, url){
   let host = url.replace(/^https?:\/\/(www\.)?/i, "").replace(/\/$/, "");
   let domain = host;
@@ -768,6 +784,7 @@ function siteLinkCard(title, url){
   a.append(ico, info, arr);
   return a;
 }
+
 function knowCard(p){
   const c = el("article","card glass know");
   if (p.thumbnail){ const im = el("img"); im.src = p.thumbnail.source; im.alt = ""; im.loading = "lazy"; im.referrerPolicy = "no-referrer"; c.appendChild(im); }
