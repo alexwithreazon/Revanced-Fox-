@@ -20,28 +20,46 @@
 html,body{height:100%;overflow:hidden;background:#0b0d14;color:#fff;font-family:var(--sans)}
 button,input{font:inherit;color:inherit}
 button{background:none;border:0;cursor:pointer}
+
 #wall{position:fixed;inset:0;background-size:cover;background-position:center;
   transform:translate3d(0,var(--py,0px),0) scale(var(--sc,1.06));transition:filter .4s,transform .25s linear;will-change:transform}
 #wall.blurred{--sc:1.12}
 #media{position:absolute;inset:0;overflow:hidden}
 #media video{width:100%;height:100%;object-fit:cover}
-#wall.aurora{background:radial-gradient(55% 55% at 20% 30%,rgba(91,140,255,.75),transparent 70%),radial-gradient(50% 50% at 80% 20%,rgba(176,107,255,.65),transparent 70%),radial-gradient(60% 60% at 60% 95%,rgba(46,230,196,.55),transparent 70%),#0a0f24;background-size:160% 160%;animation:drift 22s ease-in-out infinite alternate}
+#wall.aurora{
+  background:
+    radial-gradient(55% 55% at 20% 30%,rgba(91,140,255,.75),transparent 70%),
+    radial-gradient(50% 50% at 80% 20%,rgba(176,107,255,.65),transparent 70%),
+    radial-gradient(60% 60% at 60% 95%,rgba(46,230,196,.55),transparent 70%),
+    #0a0f24;
+  background-size:160% 160%;animation:drift 22s ease-in-out infinite alternate;
+}
 @keyframes drift{0%{background-position:0% 0%}50%{background-position:100% 40%}100%{background-position:30% 100%}}
 #grain{position:fixed;inset:0;pointer-events:none;opacity:.10;mix-blend-mode:overlay;
   background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 .9 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>")}
 #fx{position:fixed;inset:0;width:100%;height:100%;pointer-events:none}
 #dim{position:fixed;inset:0;background:#000;opacity:0;pointer-events:none;transition:opacity .3s}
-#veil{position:fixed;inset:0;pointer-events:none;opacity:0;transition:opacity .6s;background:rgba(8,12,28,.30);-webkit-backdrop-filter:blur(14px) saturate(1.2);backdrop-filter:blur(14px) saturate(1.2)}
+#veil{position:fixed;inset:0;pointer-events:none;opacity:0;transition:opacity .6s;
+  background:rgba(8,12,28,.30);-webkit-backdrop-filter:blur(14px) saturate(1.2);backdrop-filter:blur(14px) saturate(1.2)}
 body.compact #veil{opacity:.45}
 body.showres #veil{opacity:1}
-.glass{position:relative;background:linear-gradient(135deg,rgba(255,255,255,.26),rgba(255,255,255,.07));
-  -webkit-backdrop-filter:blur(22px) saturate(1.8) brightness(1.06);backdrop-filter:blur(22px) saturate(1.8) brightness(1.06);
+
+.glass{
+  position:relative;
+  background:linear-gradient(135deg,rgba(255,255,255,.26),rgba(255,255,255,.07));
+  -webkit-backdrop-filter:blur(22px) saturate(1.8) brightness(1.06);
+  backdrop-filter:blur(22px) saturate(1.8) brightness(1.06);
   border:1px solid rgba(255,255,255,.22);
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.55),inset 0 -1px 0 rgba(255,255,255,.08),inset 0 0 22px rgba(255,255,255,.07),0 12px 40px rgba(0,0,0,.18)}
-.glass::before{content:"";position:absolute;inset:0;border-radius:inherit;padding:1px;pointer-events:none;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.55),inset 0 -1px 0 rgba(255,255,255,.08),inset 0 0 22px rgba(255,255,255,.07),0 12px 40px rgba(0,0,0,.18);
+}
+.glass::before{
+  content:"";position:absolute;inset:0;border-radius:inherit;padding:1px;pointer-events:none;
   background:linear-gradient(135deg,rgba(255,255,255,.75),rgba(255,255,255,0) 35%,rgba(255,255,255,0) 65%,rgba(255,255,255,.4));
-  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude}
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
+  -webkit-mask-composite:xor;mask-composite:exclude;
+}
 .glass.dark{background:linear-gradient(135deg,rgba(255,255,255,.17),rgba(255,255,255,.04)),rgba(28,32,50,.38)}
+
 header{position:fixed;top:0;left:0;right:0;display:flex;justify-content:space-between;align-items:center;
   padding:calc(20px + env(safe-area-inset-top)) 22px 0;z-index:7;pointer-events:none}
 header>*{pointer-events:auto}
@@ -55,6 +73,7 @@ body.compact #greet{opacity:0!important;visibility:hidden;pointer-events:none}
   -webkit-backdrop-filter:blur(26px) saturate(1.8);backdrop-filter:blur(26px) saturate(1.8);
   border-bottom:1px solid rgba(255,255,255,.2);box-shadow:inset 0 -1px 0 rgba(255,255,255,.08),0 8px 30px rgba(0,0,0,.14)}
 body.compact.scrolled #barBg{opacity:1}
+
 main{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;
   padding:0 16px 7vh;text-align:center;z-index:6}
 #clock{text-align:center}
@@ -63,6 +82,7 @@ main{position:fixed;inset:0;display:flex;flex-direction:column;align-items:cente
   font-size:clamp(96px,23vw,270px);line-height:.92;letter-spacing:-.025em;
   text-shadow:0 4px 50px rgba(0,0,0,.16);margin-top:.02em;white-space:nowrap;will-change:transform}
 #time .sec{font-size:.28em;letter-spacing:0;opacity:.6;margin-left:.12em}
+
 #sbox{position:relative;width:min(580px,90vw);margin-top:clamp(28px,6vh,60px);transition:width .3s;will-change:transform}
 #sbox:focus-within{width:min(640px,92vw)}
 .search{display:flex;align-items:center;gap:12px;width:100%;height:58px;border-radius:29px;padding:0 20px;transition:transform .3s,box-shadow .3s}
@@ -80,6 +100,7 @@ main{position:fixed;inset:0;display:flex;flex-direction:column;align-items:cente
 .go svg{width:18px;height:18px;opacity:1}
 body.touch .go{display:grid}
 body.touch .search kbd{display:none}
+
 body.compact main{inset:0 0 auto 0;height:var(--bar);padding:0 120px;flex-direction:row;justify-content:center}
 body.compact #clock{position:absolute;left:22px;top:calc((var(--bar) - 34px)/2);text-align:left}
 body.compact #date{position:absolute;top:0;left:0;opacity:0;visibility:hidden;pointer-events:none}
@@ -88,12 +109,14 @@ body.compact #time .sec{display:none}
 body.compact #sbox,body.compact #sbox:focus-within{margin-top:0;width:100%}
 body.compact #sbox{max-width:580px;transition:max-width .3s}
 body.compact #sbox:focus-within{max-width:640px}
+
 #sugg{position:absolute;left:0;right:0;top:calc(100% + 10px);border-radius:26px;padding:8px;z-index:3;text-align:left;
   opacity:0;visibility:hidden;transform:translateY(-8px) scale(.98);transform-origin:top center;transition:opacity .22s,transform .3s var(--ease),visibility .22s}
 #sugg.open{opacity:1;visibility:visible;transform:none}
 #sugg button{display:flex;gap:12px;align-items:center;width:100%;text-align:left;padding:11px 14px;border-radius:18px;font-size:15.5px;transition:background .15s}
 #sugg button svg{width:16px;height:16px;opacity:.6;flex:none}
 #sugg button.on,#sugg button:hover{background:rgba(255,255,255,.2)}
+
 #results{position:fixed;inset:0;overflow-y:auto;overscroll-behavior:contain;padding-top:calc(var(--bar) + 6px);z-index:4;
   opacity:0;visibility:hidden;transition:opacity .45s,visibility .45s;scrollbar-width:none}
 #results::-webkit-scrollbar{display:none}
@@ -103,13 +126,16 @@ body.showres #results{opacity:1;visibility:visible}
 .fbmark{display:flex;align-items:center;gap:7px;font-family:var(--serif);font-weight:800;font-size:23px;letter-spacing:-.01em}
 .fbmark svg{width:21px;height:21px}
 .rmeta{font-size:13px;opacity:.65}
+
 #tabs{display:flex;gap:4px;margin:4px 0 18px;padding:4px;width:max-content;max-width:100%;
-  overflow-x:auto;scrollbar-width:none;border-radius:16px;background:rgba(255,255,255,.08);
-  backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
+  overflow-x:auto;scrollbar-width:none;border-radius:16px;
+  background:rgba(255,255,255,.08);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
 #tabs::-webkit-scrollbar{display:none}
-#tabs button{padding:8px 16px;border-radius:12px;font-size:14px;font-weight:500;opacity:.72;white-space:nowrap;transition:.2s}
+#tabs button{padding:8px 16px;border-radius:12px;font-size:14px;font-weight:500;
+  opacity:.72;white-space:nowrap;transition:.2s}
 #tabs button:hover{opacity:1;background:rgba(255,255,255,.1)}
 #tabs button.on{background:rgba(255,255,255,.25);opacity:1;box-shadow:inset 0 1px 0 rgba(255,255,255,.4)}
+
 .card{border-radius:26px;padding:18px 20px;margin-bottom:14px;opacity:0;transform:translateY(28px) scale(.97);
   transition:opacity .6s cubic-bezier(.2,.8,.2,1) var(--d,0ms),transform .75s var(--ease) var(--d,0ms),background .25s,box-shadow .25s}
 .card.in{opacity:1;transform:none}
@@ -120,10 +146,12 @@ body.showres #results{opacity:1;visibility:visible}
 .res .t{display:block;font-size:19px;font-weight:600;line-height:1.3;color:#fff;text-decoration:none;margin-bottom:6px;overflow-wrap:anywhere}
 .res .t:hover{text-decoration:underline;text-underline-offset:3px}
 .res p{font-size:14.5px;line-height:1.55;opacity:.84}
+
 .res.imgres{display:flex;gap:14px;align-items:flex-start}
 .res.imgres .thumb{width:120px;height:80px;border-radius:12px;object-fit:cover;background:rgba(255,255,255,.06);flex:none}
 .res.imgres .rcontent{flex:1;min-width:0}
 @media(max-width:560px){.res.imgres .thumb{width:80px;height:60px}}
+
 .know{display:flex;gap:16px;align-items:flex-start}
 .know img{width:96px;height:96px;object-fit:cover;border-radius:18px;flex:none;box-shadow:0 6px 24px rgba(0,0,0,.25)}
 .know h3{font-family:var(--serif);font-weight:800;font-size:23px;letter-spacing:-.01em;margin-bottom:6px;line-height:1.15}
@@ -142,13 +170,17 @@ body.showres #results{opacity:1;visibility:visible}
 .sk i{display:block;height:13px;border-radius:7px;margin:10px 0;background:linear-gradient(90deg,rgba(255,255,255,.08),rgba(255,255,255,.3),rgba(255,255,255,.08));background-size:220% 100%;animation:sh 1.3s linear infinite}
 .sk i:nth-child(1){width:34%}.sk i:nth-child(2){width:82%;height:18px}.sk i:nth-child(3){width:96%}.sk i:nth-child(4){width:60%}
 @keyframes sh{0%{background-position:120% 0}100%{background-position:-120% 0}}
+
 #prog{position:fixed;top:0;left:0;height:2px;width:100%;transform-origin:0 50%;transform:scaleX(0);z-index:9;pointer-events:none;
   background:linear-gradient(90deg,rgba(255,255,255,.15),#fff);box-shadow:0 0 12px rgba(255,255,255,.7)}
 #totop{position:fixed;right:20px;bottom:calc(22px + env(safe-area-inset-bottom));width:48px;height:48px;border-radius:50%;display:grid;place-items:center;z-index:8;
   opacity:0;transform:translateY(16px) scale(.8);pointer-events:none;transition:opacity .3s,transform .4s cubic-bezier(.2,.9,.3,1.4)}
 #totop.show{opacity:1;transform:none;pointer-events:auto}
 #totop svg{width:20px;height:20px}
-.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;
+  clip:rect(0,0,0,0);white-space:nowrap;border:0}
+
 #panel{position:fixed;top:calc(var(--bar) + env(safe-area-inset-top));right:16px;width:min(370px,calc(100vw - 32px));
   max-height:calc(100dvh - var(--bar) - 20px - env(safe-area-inset-top));overflow:auto;border-radius:28px;padding:20px;z-index:10;
   opacity:0;visibility:hidden;transform:translateY(-10px) scale(.96);transform-origin:top right;
@@ -188,6 +220,7 @@ body.showres #results{opacity:1;visibility:visible}
 input[type=range]{-webkit-appearance:none;appearance:none;width:170px;height:6px;border-radius:3px;background:rgba(255,255,255,.2);outline:0}
 input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:22px;height:22px;border-radius:50%;background:#fff;box-shadow:0 2px 8px rgba(0,0,0,.35)}
 input[type=range]::-moz-range-thumb{width:22px;height:22px;border:0;border-radius:50%;background:#fff}
+
 @media(max-width:640px){
   :root{--bar:calc(124px + env(safe-area-inset-top))}
   header{padding-top:calc(8px + env(safe-area-inset-top))}
@@ -224,7 +257,10 @@ input[type=range]::-moz-range-thumb{width:22px;height:22px;border:0;border-radiu
 </header>
 
 <main>
-  <div id="clock"><div id="date"></div><div id="time"></div></div>
+  <div id="clock">
+    <div id="date"></div>
+    <div id="time"></div>
+  </div>
   <div id="sbox">
     <form id="sf" class="glass search" autocomplete="off">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
@@ -285,40 +321,39 @@ input[type=range]::-moz-range-thumb{width:22px;height:22px;border:0;border-radiu
 (() => {
 "use strict";
 
-/* ====== Texte ====== */
 const T = {
   de:{settings:"Einstellungen",general:"Allgemein",name:"Dein Name",lang:"Sprache",greet:"Begrüßung",h12:"12-Stunden-Format",sec:"Sekunden",
       sugg:"Suchvorschläge",know:"Wissenskarte (Wikipedia)",
       ddgToggle:"DuckDuckGo Instant Answers",
-      ddgHint:"Kostenlose, trackerfreie Zusatz-Antworten (Definitionen, Rechner). Keine Web-Linkliste – die kommt von Marginalia.",
-      instPh:"SearXNG-Instanz (optional, nur für Bilder/News/Videos)",
-      instHint:"Für den Alle-Tab nicht nötig – Marginalia und Purili sind fest eingebaut. Bilder, News, Videos und Foren brauchen aber eine SearXNG-Instanz (JSON aktiviert, CORS-Header gesetzt).",
+      ddgHint:"Kostenlose, trackerfreie Zusatz-Antworten (Definitionen, Taschenrechner). Keine Link-Liste – die kommt von deiner SearXNG-Instanz.",
+      instPh:"SearXNG-Instanz, z. B. /searx",
+      instHint:"Für echte Webergebnisse in der App brauchst du eine SearXNG-Instanz mit aktiviertem JSON-Format. Ohne Instanz zeigt FireBrave Wikipedia, DDG-Karten und externe Such-Buttons.",
       wall:"Hintergrund",upload:"Eigenes Bild, GIF oder Video …",url:"…oder Bild-/Video-URL einfügen und Enter drücken",fx:"Effekt",amount:"Menge",
       look:"Darstellung",dim:"Abdunkeln",blur:"Weichzeichnen",reset:"Alles zurücksetzen",search:"Mit FireBrave suchen",namePh:"Optional",
       fxn:{none:"Aus",snow:"Schnee",rain:"Regen",stars:"Sterne",fireflies:"Glühwürmchen"},
       g:["Gute Nacht","Guten Morgen","Guten Tag","Guten Abend"],
-      resFor:"Ergebnisse für",via:"über",noTitle:"Keine Ergebnisse erreichbar",
-      noBody:"Marginalia und Purili sind kostenlos und trackerfrei, aber rate-limitiert. Wenn gerade nichts kommt: kurz warten, nochmal suchen, oder die Dienste direkt öffnen:",
+      resFor:"Ergebnisse für",via:"über",noTitle:"Keine Webergebnisse in-app",
+      noBody:"Ohne eigene SearXNG-Instanz können wir keine Link-Liste hier zeigen – alle anderen Dienste blockieren Browser-Anfragen. Trag unter Einstellungen eine Instanz ein, oder such direkt hier weiter:",
       setInst:"Instanz einstellen",moreOn:"Weitersuchen bei",end:"Keine weiteren Ergebnisse",wiki:"Auf Wikipedia lesen",
       catAll:"Alle",catImg:"Bilder",catNews:"News",catVid:"Videos",catForum:"Foren",
-      tabNeedsSearx:"Bilder, News, Videos und Foren brauchen eine SearXNG-Instanz (Marginalia/Purili bieten diese Medientypen nicht an). Trag unter Einstellungen eine Instanz ein – oder nutz den Alle-Tab.",
-      loading:"Lädt…",viaMarginalia:"Marginalia",viaPurili:"Purili",viaSearx:"SearXNG"},
+      tabNeedsSearx:"Dieser Tab braucht eine SearXNG-Instanz. Trag sie unter Einstellungen ein – oder nutz den Alle-Tab und die Such-Buttons.",
+      loading:"Lädt…",viaSearx:"SearXNG"},
   en:{settings:"Settings",general:"General",name:"Your name",lang:"Language",greet:"Greeting",h12:"12-hour clock",sec:"Seconds",
       sugg:"Suggestions",know:"Knowledge card (Wikipedia)",
       ddgToggle:"DuckDuckGo Instant Answers",
-      ddgHint:"Free, tracker-free supplementary answers (definitions, calculator). Not a web link list – that comes from Marginalia.",
-      instPh:"SearXNG instance (optional, only for images/news/videos)",
-      instHint:"Not needed for the All tab – Marginalia and Purili are built in. Images, news, videos and forums still require a SearXNG instance (JSON enabled, CORS header set).",
+      ddgHint:"Free, tracker-free supplementary answers (definitions, calculator). Not a link list – those come from your SearXNG instance.",
+      instPh:"SearXNG instance, e.g. /searx",
+      instHint:"For real web results in the app you need a SearXNG instance with JSON enabled. Without one, FireBrave shows Wikipedia, DDG cards, and external search buttons.",
       wall:"Wallpaper",upload:"Your own image, GIF or video …",url:"…or paste image/video URL + Enter",fx:"Effect",amount:"Amount",
       look:"Appearance",dim:"Dim",blur:"Blur",reset:"Reset everything",search:"Search with FireBrave",namePh:"Optional",
       fxn:{none:"Off",snow:"Snow",rain:"Rain",stars:"Stars",fireflies:"Fireflies"},
       g:["Good night","Good morning","Good afternoon","Good evening"],
-      resFor:"Results for",via:"via",noTitle:"No results reachable",
-      noBody:"Marginalia and Purili are free and tracker-free, but rate-limited. If nothing comes back: wait a moment, search again, or open the services directly:",
+      resFor:"Results for",via:"via",noTitle:"No in-app web results",
+      noBody:"Without your own SearXNG instance we can't show a link list here – other services block browser requests. Set an instance in settings, or search directly:",
       setInst:"Set instance",moreOn:"Keep searching on",end:"No more results",wiki:"Read on Wikipedia",
       catAll:"All",catImg:"Images",catNews:"News",catVid:"Videos",catForum:"Forums",
-      tabNeedsSearx:"Images, news, videos and forums require a SearXNG instance (Marginalia/Purili don't offer these media types). Add one in settings – or use the All tab.",
-      loading:"Loading…",viaMarginalia:"Marginalia",viaPurili:"Purili",viaSearx:"SearXNG"}
+      tabNeedsSearx:"This tab needs a SearXNG instance. Add one in settings – or use the All tab and the search buttons.",
+      loading:"Loading…",viaSearx:"SearXNG"}
 };
 
 const WALLS = [
@@ -333,7 +368,6 @@ const WALLS = [
 ];
 const FX = ["none","snow","rain","stars","fireflies"];
 
-/* Such-Tabs. Alle außer "general" brauchen SearXNG (Marginalia/Purili haben keine Medien). */
 const CATS = [
   { id:"general", cat:"general", needsSearx:false },
   { id:"images",  cat:"images",  needsSearx:true  },
@@ -571,7 +605,7 @@ addEventListener("keydown", e => {
   if (e.key === "/" && document.activeElement.tagName !== "INPUT"){ e.preventDefault(); q.focus(); q.select(); }
 });
 
-/* ====== FireBrave: Ergebnisse ====== */
+/* ====== FireBrave ====== */
 const FLAME = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg>';
 
 let io, cur = null;
@@ -609,9 +643,11 @@ function buildTabs(){
 function externalLinks(qs){
   const e = encodeURIComponent(qs);
   return [
-    ["Marginalia", "https://search.marginalia.nu/search?query=" + e],
-    ["Purili", "https://puri.li/?q=" + e],
+    ["DuckDuckGo", "https://duckduckgo.com/?q=" + e],
+    ["Brave", "https://search.brave.com/search?q=" + e],
+    ["Startpage", "https://www.startpage.com/sp/search?query=" + e],
     ["Mojeek", "https://www.mojeek.com/search?q=" + e],
+    ["Marginalia", "https://search.marginalia.nu/search?query=" + e],
     ["Wikipedia", `https://${wl()}.wikipedia.org/w/index.php?search=` + e]
   ];
 }
@@ -658,7 +694,7 @@ async function run(qs, push = true){
   }
 
   const catCfg = CATS.find(c => c.id === activeCat) || CATS[0];
-  cur = { q:qs, cat:activeCat, cfg:catCfg, offset:0, done:false, loading:false, count:0, seen:new Set(), my, list, sent, meta };
+  cur = { q:qs, cat:activeCat, cfg:catCfg, page:0, done:false, loading:false, count:0, seen:new Set(), my, list, sent, meta };
   loadInitial(cur);
 }
 
@@ -731,99 +767,48 @@ function ddgCard(d){
   return c;
 }
 
-/* ====== Suchquellen ====== */
-
-/* Marginalia: öffentliche JSON-API, Key "public", CORS ja, rate-limitiert.
-   Liefert title, url, description. */
-async function searchMarginalia(qs, count = 20, page = 1){
-  try {
-    const params = new URLSearchParams({ query: qs, count: String(count), page: String(page) });
-    const r = await fetch(`https://api2.marginalia-search.com/search?${params}`, {
-      headers: { "API-Key": "public" },
-      credentials: "omit",
-      referrerPolicy: "no-referrer"
-    });
-    if (!r.ok) return [];
-    const j = await r.json();
-    if (!j || !Array.isArray(j.results)) return [];
-    return j.results.map(x => ({
-      title: x.title || x.url,
-      url: x.url,
-      content: x.description || ""
-    })).filter(x => x.url && /^https?:/.test(x.url));
-  } catch(e){ return []; }
-}
-
-/* Purili: eigener Index, keine API-Key, CORS. Endpunkt /api/search. */
-async function searchPurili(qs, limit = 20){
-  try {
-    const r = await fetch(`https://api.puri.li/api/search?q=${encodeURIComponent(qs)}&limit=${limit}`, {
-      credentials: "omit",
-      referrerPolicy: "no-referrer"
-    });
-    if (!r.ok) return [];
-    const j = await r.json();
-    const arr = j.results || j.data || (Array.isArray(j) ? j : []);
-    return arr.map(x => ({
-      title: x.title || x.url,
-      url: x.url || x.link,
-      content: x.description || x.snippet || ""
-    })).filter(x => x.url && /^https?:/.test(x.url));
-  } catch(e){ return []; }
-}
-
-/* SearXNG: nur für Medien-Tabs. Instanz muss JSON + CORS erlauben. */
+/* SearXNG: die einzige In-App-Quelle. Gibt null zurück bei Fehler/keine Instanz. */
 async function searchSearx(qs, page, engines){
-  if (!S.instance) return [];
+  if (!S.instance) return null;
   const params = new URLSearchParams({ q:qs, format:"json", pageno:String(page), language:wl() });
   if (engines) params.set("engines", engines);
   try {
     const r = await fetch(`${S.instance.replace(/\/+$/,"")}/search?${params}`, {
       credentials:"omit", referrerPolicy:"no-referrer"
     });
-    if (!r.ok) return [];
+    if (!r.ok) return null;
     const j = await r.json();
-    return (j.results || []).map(x => ({
+    if (!j || !Array.isArray(j.results)) return null;
+    return j.results.map(x => ({
       title: x.title,
       url: x.url,
       content: x.content || "",
       thumbnail: x.thumbnail || x.img_src || ""
-    }));
-  } catch(e){ return []; }
+    })).filter(x => x.url && /^https?:/.test(x.url));
+  } catch(e){ return null; }
 }
-
-/* ====== Lade-Logik ====== */
 
 async function loadInitial(st){
   const statusEl = $("status"); if (statusEl) statusEl.textContent = t().loading;
   st.list.innerHTML = "";
-  let results = [];
 
-  if (st.cfg.needsSearx){
-    if (!S.instance){
-      const n = el("article","card glass note");
-      n.append(el("h3","", t().noTitle), el("p","", t().tabNeedsSearx));
-      const btn = el("button","btn", t().setInst);
-      btn.onclick = () => setPanel(true);
-      n.appendChild(btn);
-      st.list.appendChild(n); reveal(n,0);
-      st.done = true; return;
-    }
-    results = await searchSearx(st.q, 1, st.cfg.engines);
-    st.meta.textContent = `${t().resFor} „${st.q}“ · ${t().viaSearx}`;
-  } else {
-    /* Alle-Tab: Marginalia + Purili parallel, dann zusammenführen. */
-    const [m, p] = await Promise.all([
-      searchMarginalia(st.q, 20, 1),
-      searchPurili(st.q, 20)
-    ]);
-    results = [...m, ...p];
-    st.meta.textContent = `${t().resFor} „${st.q}“ · ${t().viaMarginalia} + ${t().viaPurili}`;
+  /* Nicht-General-Tabs: brauchen zwingend eine SearXNG-Instanz. */
+  if (st.cfg.needsSearx && !S.instance){
+    const n = el("article","card glass note");
+    n.append(el("h3","", t().noTitle), el("p","", t().tabNeedsSearx));
+    const btn = el("button","btn", t().setInst);
+    btn.style.marginBottom = "14px";
+    btn.onclick = () => setPanel(true);
+    n.append(btn, chips(st.q));
+    st.list.appendChild(n); reveal(n, 0);
+    st.done = true; return;
   }
 
+  const results = await searchSearx(st.q, 1, st.cfg.engines || "");
   if (st.my !== token) return;
 
-  if (!results.length){
+  if (results === null){
+    /* Kein Backend oder Instanz nicht erreichbar. */
     const n = el("article","card glass note");
     n.append(el("h3","", t().noTitle), el("p","", t().noBody));
     const btn = el("button","btn", t().setInst);
@@ -831,8 +816,18 @@ async function loadInitial(st){
     btn.onclick = () => setPanel(true);
     n.append(btn, chips(st.q));
     st.list.appendChild(n); reveal(n, 0);
+    st.meta.textContent = `${t().resFor} „${st.q}“`;
     st.done = true;
     if (statusEl) statusEl.textContent = t().noTitle;
+    return;
+  }
+
+  if (results.length === 0){
+    const n = el("article","card glass note");
+    n.append(el("h3","", t().noTitle), chips(st.q));
+    st.list.appendChild(n); reveal(n, 0);
+    st.done = true;
+    if (statusEl) statusEl.textContent = t().end;
     return;
   }
 
@@ -846,58 +841,23 @@ async function loadInitial(st){
   });
   st.count = added;
   st.loading = false;
-
-  if (st.cat === "general"){
-    /* Unendliches Nachladen: Marginalia Seite 2, dann Purili tiefer. */
-    io2.observe(st.sent);
-  } else {
-    io2.unobserve(st.sent);
-  }
-
+  st.meta.textContent = `${t().resFor} „${st.q}“ · ${t().viaSearx}`;
+  io2.observe(st.sent);
   if (statusEl) statusEl.textContent = `${st.count} ${t().resFor} ${st.q}`;
 }
 
 async function loadMore(st){
   if (st.loading || st.done || st.my !== token) return;
+  if (!S.instance) return;
   st.loading = true;
-
-  if (st.cat === "general"){
-    st.offset++;
-    const nextPage = st.offset + 1;
-    let results = [];
-    if (st.offset === 1){
-      results = await searchMarginalia(st.q, 20, 2);
-    } else if (st.offset === 2){
-      results = await searchPurili(st.q, 20);
-    } else {
-      st.done = true; st.loading = false;
-      io2.unobserve(st.sent);
-      return;
-    }
-
-    if (st.my !== token) return;
-    let added = 0;
-    results.forEach(r => {
-      if (!r.url || st.seen.has(r.url)) return;
-      st.seen.add(r.url);
-      const c = webCard(r, "general");
-      if (!c) return;
-      st.list.appendChild(c); reveal(c, added++);
-    });
-    st.count += added;
-    st.loading = false;
-    if (!added) st.done = true;
-    else { io2.unobserve(st.sent); io2.observe(st.sent); }
+  st.page++;
+  const page = st.page + 1;
+  const results = await searchSearx(st.q, page, st.cfg.engines || "");
+  if (st.my !== token) return;
+  if (!results || !results.length){
+    st.done = true; st.loading = false; io2.unobserve(st.sent);
     return;
   }
-
-  /* SearXNG-Medien-Tabs: Seite 2+ */
-  st.offset++;
-  const page = st.offset + 1;
-  const results = await searchSearx(st.q, page, st.cfg.engines);
-  if (st.my !== token) return;
-  if (!results.length){ st.done = true; st.loading = false; io2.unobserve(st.sent); return; }
-
   let added = 0;
   results.forEach(r => {
     if (!r.url || st.seen.has(r.url)) return;
