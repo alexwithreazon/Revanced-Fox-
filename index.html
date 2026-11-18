@@ -304,6 +304,8 @@ input[type=range]::-moz-range-thumb{width:22px;height:22px;border:0;border-radiu
   <div class="sec-t">FireBrave</div>
   <div class="row"><span data-i="sugg"></span><label class="sw"><input type="checkbox" id="cbSugg"><i></i></label></div>
   <div class="row"><span data-i="know"></span><label class="sw"><input type="checkbox" id="cbKnow"><i></i></label></div>
+  <div class="row"><span data-i="ddgToggle"></span><label class="sw"><input type="checkbox" id="cbDdg"><i></i></label></div>
+  <p class="hint" data-i="ddgHint"></p>
   <input id="inInst" type="text" inputmode="url" autocapitalize="off" spellcheck="false">
   <p class="hint" data-i="instHint"></p>
 
@@ -331,7 +333,11 @@ input[type=range]::-moz-range-thumb{width:22px;height:22px;border:0;border-radiu
 /* ====== Texte ====== */
 const T = {
   de:{settings:"Einstellungen",general:"Allgemein",name:"Dein Name",lang:"Sprache",greet:"Begrüßung",h12:"12-Stunden-Format",sec:"Sekunden",
-      sugg:"Suchvorschläge",know:"Wissenskarte (Wikipedia)",instPh:"Eigene SearXNG-Instanz (optional)",
+      sugg:"Suchvorschläge",know:"Wissenskarte (Wikipedia)",
+      ddgToggle:"DuckDuckGo Antworten",
+      ddgHint:"Trackerfreie DuckDuckGo-Instant-Answer-API (Definitionen, Rechner, Fakten). Für echte DDG-Web-Ergebnisse: Engine duckduckgo in SearXNG aktivieren.",
+      ddgTitle:"DuckDuckGo Antwort", ddgSource:"Quelle",
+      instPh:"Eigene SearXNG-Instanz (optional)",
       instHint:"FireBrave holt Webergebnisse von einer SearXNG-Instanz (Open Source, ohne Tracking). Die Instanz muss das JSON-Format erlauben. Ohne Eintrag werden öffentliche Instanzen der Reihe nach probiert.",
       wall:"Hintergrund",upload:"Eigenes Bild, GIF oder Video …",url:"…oder Bild-/Video-URL einfügen und Enter drücken",fx:"Effekt",amount:"Menge",
       look:"Darstellung",dim:"Abdunkeln",blur:"Weichzeichnen",reset:"Alles zurücksetzen",search:"Mit FireBrave suchen",namePh:"Optional",
@@ -344,7 +350,11 @@ const T = {
       noForums:"Für Foren-Suche müssen in SearXNG die Engines reddit, stackoverflow etc. aktiviert sein (settings.yml).",
       loading:"Lädt…"},
   en:{settings:"Settings",general:"General",name:"Your name",lang:"Language",greet:"Greeting",h12:"12-hour clock",sec:"Seconds",
-      sugg:"Search suggestions",know:"Knowledge card (Wikipedia)",instPh:"Your own SearXNG instance (optional)",
+      sugg:"Search suggestions",know:"Knowledge card (Wikipedia)",
+      ddgToggle:"DuckDuckGo answers",
+      ddgHint:"Tracker-free DuckDuckGo Instant Answer API (definitions, calculator, facts). For full DDG web results: enable the duckduckgo engine in SearXNG.",
+      ddgTitle:"DuckDuckGo answer", ddgSource:"Source",
+      instPh:"Your own SearXNG instance (optional)",
       instHint:"FireBrave fetches web results from a SearXNG instance (open source, no tracking). The instance must allow the JSON format. Without an entry, public instances are tried in turn.",
       wall:"Wallpaper",upload:"Your own image, GIF or video …",url:"…or paste an image/video URL and press Enter",fx:"Effect",amount:"Amount",
       look:"Appearance",dim:"Dim",blur:"Blur",reset:"Reset everything",search:"Search with FireBrave",namePh:"Optional",
@@ -384,7 +394,7 @@ const CATS = [
 const catLabel = id => ({ general:t().catAll, images:t().catImg, news:t().catNews, videos:t().catVid, forums:t().catForum }[id]);
 
 /* ====== State ====== */
-const DEF = {name:"",lang:"de",h12:false,sec:false,greet:true,wall:"dusk",url:"",fx:"snow",amount:45,dim:0,blur:0,instance:"",sugg:true,know:true};
+const DEF = {name:"",lang:"de",h12:false,sec:false,greet:true,wall:"dusk",url:"",fx:"snow",amount:45,dim:0,blur:0,instance:"",sugg:true,know:true,ddg:true};
 let S = {...DEF};
 try { Object.assign(S, JSON.parse(localStorage.getItem("startpage") || "{}")); } catch(e){}
 const save = () => { try { localStorage.setItem("startpage", JSON.stringify(S)); } catch(e){} };
@@ -428,7 +438,6 @@ function showMedia(url, video){
     v.src = url; v.autoplay = v.loop = v.muted = v.playsInline = true; v.setAttribute("muted","");
     media.appendChild(v); v.play().catch(()=>{});
   } else {
-    // Backslash, Anführungszeichen und Zeilenumbrüche escapen, damit aus der URL kein CSS-String-Injection wird.
     const safe = url.replace(/\\/g,"\\\\").replace(/"/g,'\\"').replace(/[\r\n]/g,"");
     media.style.background = `center/cover no-repeat url("${safe}")`;
   }
@@ -467,7 +476,6 @@ function fit(){
   const dpr = Math.min(devicePixelRatio||1, 2);
   W = innerWidth; H = innerHeight;
   cv.width = W*dpr; cv.height = H*dpr; cx.setTransform(dpr,0,0,dpr,0,0);
-  // Kein initFx() hier – sonst doppelt, weil applyFx() ebenfalls initFx() aufruft.
 }
 function initFx(){
   P = [];
@@ -662,6 +670,7 @@ function externalLinks(qs){
   try { abs = new URL(S.instance || working || DEFAULT_INSTANCES[0], location.href).href.replace(/\/+$/,""); }
   catch(err){ abs = DEFAULT_INSTANCES[0]; }
   return [
+    ["DuckDuckGo", "https://duckduckgo.com/?q=" + e],
     ["Wikipedia", `https://${wl()}.wikipedia.org/w/index.php?search=` + e],
     ["Mojeek", "https://www.mojeek.com/search?q=" + e],
     ["Marginalia", "https://search.marginalia.nu/search?query=" + e],
@@ -699,10 +708,14 @@ async function run(qs, push = true){
 
   for (let i=0;i<3;i++){ const s = el("article","card glass sk"); s.innerHTML = "<i></i><i></i><i></i><i></i>"; list.appendChild(s); reveal(s,i); }
 
-  if (S.know && activeCat === "general"){
-    wiki(qs).then(p => {
+  if (activeCat === "general"){
+    if (S.know) wiki(qs).then(p => {
       if (my !== token || !p) return;
       const c = knowCard(p); kn.appendChild(c); reveal(c,0);
+    }).catch(()=>{});
+    if (S.ddg) ddg(qs).then(d => {
+      if (my !== token || !d) return;
+      const c = ddgCard(d); kn.appendChild(c); reveal(c,1);
     }).catch(()=>{});
   }
 
@@ -742,6 +755,60 @@ function knowCard(p){
   return c;
 }
 
+/* ====== DuckDuckGo Instant Answer API (trackerfrei, CORS, kein Key) ====== */
+async function ddg(qs){
+  try {
+    const u = `https://api.duckduckgo.com/?q=${encodeURIComponent(qs)}&format=json&no_html=1&skip_disambig=1`;
+    const r = await fetch(u, {credentials:"omit", referrerPolicy:"no-referrer"});
+    if (!r.ok) return null;
+    const j = await r.json();
+    if (!j || typeof j !== "object" || Array.isArray(j)) return null;
+    const hasAnswer = !!(j.Answer && String(j.Answer).trim());
+    const hasDef = !!(j.Definition && String(j.Definition).trim());
+    // Abstract nur übernehmen, wenn er NICHT von Wikipedia stammt (sonst doppelt zur Wissenskarte)
+    const hasNonWikiAbstract = !!(j.AbstractText && String(j.AbstractText).trim()) &&
+      (!j.AbstractURL || !/wikipedia\.org/i.test(j.AbstractURL)) &&
+      (!j.AbstractSource || !/wikipedia/i.test(j.AbstractSource));
+    if (!hasAnswer && !hasDef && !hasNonWikiAbstract) return null;
+    return j;
+  } catch(e){ return null; }
+}
+function ddgCard(d){
+  const c = el("article","card glass know");
+  let imgUrl = "";
+  if (d.Image && d.Image.URL){
+    imgUrl = d.Image.URL.startsWith("//") ? "https:" + d.Image.URL
+           : d.Image.URL.startsWith("/") ? "https://duckduckgo.com" + d.Image.URL
+           : d.Image.URL;
+  } else if (d.Image && d.Image.Source){
+    imgUrl = d.Image.Source;
+  }
+  if (imgUrl){
+    const im = el("img");
+    im.src = imgUrl; im.alt = ""; im.loading = "lazy"; im.referrerPolicy = "no-referrer";
+    c.appendChild(im);
+  }
+  const b = el("div");
+  b.appendChild(el("h3","", t().ddgTitle));
+  if (d.Answer){
+    b.append(el("p","", d.Answer));
+    if (d.AnswerType) b.append(el("p","", "· " + d.AnswerType));
+  } else if (d.Definition){
+    b.append(el("p","", d.Definition));
+    if (d.DefinitionSource) b.append(el("p","", t().ddgSource + ": " + d.DefinitionSource));
+  } else if (d.AbstractText){
+    b.append(el("p","", d.AbstractText));
+    if (d.AbstractSource) b.append(el("p","", t().ddgSource + ": " + d.AbstractSource));
+  }
+  if (d.AbstractURL){
+    const a = el("a","", (d.AbstractSource || "DuckDuckGo") + " ↗");
+    a.href = d.AbstractURL; a.target = "_blank"; a.rel = "noopener noreferrer";
+    b.appendChild(a);
+  }
+  c.appendChild(b);
+  return c;
+}
+
 async function searx(qs, opts = {}){
   const { page = 1, cat = "general", engines = "" } = opts;
   const params = new URLSearchParams({ q:qs, format:"json", pageno:String(page), language:wl() });
@@ -767,7 +834,6 @@ async function searx(qs, opts = {}){
     } catch (e){
       clearTimeout(to);
       lastErr = e;
-      // working nur auf Seite 1 verwerfen – sonst killst du Pagination wegen eines Timeouts
       if (page === 1 && working === b) working = null;
     }
   }
@@ -788,7 +854,6 @@ function webCard(r, cat){
   const u = el("div","u");
   const letter = (host[0] || "?").toUpperCase();
   const fav = el("span","fav", letter);
-  // Deterministische Farbe je Host – sonst immer gleiches Grau
   let h = 0; for (const ch of host) h = (h*31 + ch.charCodeAt(0)) | 0;
   fav.style.background = `hsl(${(h % 360 + 360) % 360} 45% 45% / .75)`;
   const pShort = path && path !== "/" ? " › " + path.slice(1).split("/").slice(0,2).join(" › ") : "";
@@ -846,8 +911,6 @@ async function loadWeb(st){
   st.meta.textContent = `${t().resFor} „${st.q}“ · ${t().via} ${host || "lokal"}`;
 
   let added = 0;
-
-  // SearXNG liefert manchmal direkte Antworten (Taschenrechner, Wetter etc.)
   if (st.page === 1 && data.answers.length){
     const a = el("article","card glass note");
     data.answers.forEach(x => { if (x && x.answer) a.append(el("p","", x.answer)); });
@@ -922,12 +985,12 @@ function buildUI(){
   $("btnUpload").textContent = t().upload; $("inUrl").placeholder = t().url; $("btnReset").textContent = t().reset;
   document.documentElement.lang = S.lang;
 
-  // A11y: aria-labels für Inputs/Slider, die sonst keinen zugänglichen Namen hätten
   $("cbGreet").setAttribute("aria-label", t().greet);
   $("cbH12").setAttribute("aria-label", t().h12);
   $("cbSec").setAttribute("aria-label", t().sec);
   $("cbSugg").setAttribute("aria-label", t().sugg);
   $("cbKnow").setAttribute("aria-label", t().know);
+  $("cbDdg").setAttribute("aria-label", t().ddgToggle);
   $("rgAmount").setAttribute("aria-label", t().amount);
   $("rgDim").setAttribute("aria-label", t().dim);
   $("rgBlur").setAttribute("aria-label", t().blur);
@@ -955,13 +1018,12 @@ function buildUI(){
 $("inName").value = S.name;
 $("inName").oninput = e => { S.name = e.target.value.trim(); save(); tick(); };
 $("segLang").querySelectorAll("button").forEach(b => b.onclick = () => { S.lang = b.dataset.v; save(); buildUI(); tick(); });
-[["cbGreet","greet"],["cbH12","h12"],["cbSec","sec"],["cbSugg","sugg"],["cbKnow","know"]].forEach(([id,k]) => {
+[["cbGreet","greet"],["cbH12","h12"],["cbSec","sec"],["cbSugg","sugg"],["cbKnow","know"],["cbDdg","ddg"]].forEach(([id,k]) => {
   $(id).checked = !!S[k]; $(id).onchange = e => { S[k] = e.target.checked; save(); tick(); if (k === "sugg" && !S.sugg) hideSugg(); };
 });
 $("inInst").value = S.instance;
 $("inInst").addEventListener("change", e => {
   let v = e.target.value.trim();
-  // Relative Pfade (z. B. "/searx") zulassen – sonst https:// voranstellen
   if (v && !/^(https?:\/\/|\/)/i.test(v)) v = "https://" + v;
   e.target.value = v;
   S.instance = v.replace(/\/+$/,""); working = null; save();
