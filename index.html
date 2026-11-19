@@ -8,11 +8,13 @@
 <title>Revanced Fox</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,700;9..144,800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,700;9..144,800&family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;700&family=JetBrains+Mono:wght@700&family=Orbitron:wght@700&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet">
 <style>
 :root{
   --serif:"Fraunces","New York",ui-serif,"Iowan Old Style",Georgia,serif;
   --sans:"Inter",-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",system-ui,sans-serif;
+  --clock:var(--serif);
+  --cs:1;
   --bar:76px;
   --ease:cubic-bezier(.2,.85,.25,1.04);
 }
@@ -78,8 +80,8 @@ main{position:fixed;inset:0;display:flex;flex-direction:column;align-items:cente
   padding:0 16px 7vh;text-align:center;z-index:6}
 #clock{text-align:center}
 #date{font-size:clamp(19px,3.1vw,34px);font-weight:600;color:rgba(255,255,255,.86);text-shadow:0 1px 18px rgba(0,0,0,.18);transition:opacity .15s}
-#time{font-family:var(--serif);font-weight:700;font-variation-settings:"opsz" 144;
-  font-size:clamp(96px,23vw,270px);line-height:.92;letter-spacing:-.025em;
+#time{font-family:var(--clock);font-weight:700;font-variation-settings:"opsz" 144;
+  font-size:calc(clamp(96px,23vw,270px) * var(--cs));line-height:.92;letter-spacing:-.025em;
   text-shadow:0 4px 50px rgba(0,0,0,.16);margin-top:.02em;white-space:nowrap;will-change:transform}
 #time .sec{font-size:.28em;letter-spacing:0;opacity:.6;margin-left:.12em}
 
@@ -220,6 +222,15 @@ body.showres #results{opacity:1;visibility:visible}
 .wsw:hover{transform:scale(1.06)}
 .wsw.on{border-color:#fff}
 .wsw span{position:absolute;left:0;right:0;bottom:4px;font-size:10px;font-weight:600;text-shadow:0 1px 4px rgba(0,0,0,.6)}
+
+#fonts{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.fsw{border-radius:16px;border:2px solid transparent;padding:12px 4px 8px;background:rgba(255,255,255,.1);
+  display:flex;flex-direction:column;align-items:center;gap:4px;transition:transform .2s,background .2s;box-shadow:inset 0 0 0 1px rgba(255,255,255,.2)}
+.fsw:hover{transform:scale(1.05);background:rgba(255,255,255,.16)}
+.fsw.on{border-color:#fff;background:rgba(255,255,255,.22)}
+.fsw b{font-size:24px;font-weight:700;line-height:1.1;letter-spacing:-.01em}
+.fsw span{font-family:var(--sans);font-size:10px;font-weight:600;opacity:.7}
+
 .btn{width:100%;margin-top:10px;padding:11px 14px;border-radius:14px;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.2);font-size:14px;font-weight:500;transition:.2s}
 .btn:hover{background:rgba(255,255,255,.24)}
 .btn.warn{color:#ffb4ac}
@@ -301,6 +312,9 @@ input[type=range]::-moz-range-thumb{width:22px;height:22px;border:0;border-radiu
   <div class="row"><span data-i="h12"></span><label class="sw"><input type="checkbox" id="cbH12"><i></i></label></div>
   <div class="row"><span data-i="sec"></span><label class="sw"><input type="checkbox" id="cbSec"><i></i></label></div>
 
+  <div class="sec-t" data-i="clockfont"></div>
+  <div id="fonts"></div>
+
   <div class="sec-t">FireBrave</div>
   <div class="row"><span data-i="sugg"></span><label class="sw"><input type="checkbox" id="cbSugg"><i></i></label></div>
   <div class="row"><span data-i="know"></span><label class="sw"><input type="checkbox" id="cbKnow"><i></i></label></div>
@@ -332,37 +346,41 @@ input[type=range]::-moz-range-thumb{width:22px;height:22px;border:0;border-radiu
 
 const T = {
   de:{settings:"Einstellungen",general:"Allgemein",name:"Dein Name",lang:"Sprache",greet:"Begrüßung",h12:"12-Stunden-Format",sec:"Sekunden",
+      clockfont:"Uhr-Schriftart",
       sugg:"Suchvorschläge",know:"Wissenskarte (Wikipedia)",
       ddgToggle:"DuckDuckGo Instant Answers",
-      ddgHint:"Kostenlose, trackerfreie Zusatz-Antworten (Definitionen, Taschenrechner). Keine Link-Liste – die kommt von deiner SearXNG-Instanz.",
-      instPh:"SearXNG-Instanz, z. B. /searx",
-      instHint:"Für echte Webergebnisse in der App brauchst du eine SearXNG-Instanz mit aktiviertem JSON-Format. Ohne Instanz zeigt FireBrave Wikipedia, DDG-Karten und externe Such-Buttons.",
+      ddgHint:"Kostenlose, trackerfreie Zusatz-Antworten (Definitionen, Taschenrechner).",
+      instPh:"Optional: SearXNG-Instanz, z. B. /searx",
+      instHint:"Ohne Instanz nutzt FireBrave kostenlose, trackerfreie Quellen (Wikipedia, Wikimedia, Hacker News, Stack Overflow, Lemmy). Mit eigener SearXNG-Instanz (JSON aktiviert) bekommst du echte Google-artige Ergebnisse aus dem ganzen Web inkl. Reddit & Videos.",
       wall:"Hintergrund",upload:"Eigenes Bild, GIF oder Video …",url:"…oder Bild-/Video-URL einfügen und Enter drücken",fx:"Effekt",amount:"Menge",
       look:"Darstellung",dim:"Abdunkeln",blur:"Weichzeichnen",reset:"Alles zurücksetzen",search:"Mit FireBrave suchen",namePh:"Optional",
       fxn:{none:"Aus",snow:"Schnee",rain:"Regen",stars:"Sterne",fireflies:"Glühwürmchen"},
       g:["Gute Nacht","Guten Morgen","Guten Tag","Guten Abend"],
-      resFor:"Ergebnisse für",via:"über",noTitle:"Keine Webergebnisse in-app",
-      noBody:"Ohne eigene SearXNG-Instanz können wir keine Link-Liste hier zeigen – alle anderen Dienste blockieren Browser-Anfragen. Trag unter Einstellungen eine Instanz ein, oder such direkt hier weiter:",
+      resFor:"Ergebnisse für",via:"über",noTitle:"Keine Ergebnisse gefunden",
+      noBody:"Die kostenlosen Quellen haben nichts geliefert oder sind nicht erreichbar. Probier andere Suchbegriffe, trag eine SearXNG-Instanz ein oder such direkt hier weiter:",
       setInst:"Instanz einstellen",moreOn:"Weitersuchen bei",end:"Keine weiteren Ergebnisse",wiki:"Auf Wikipedia lesen",
       catAll:"Alle",catImg:"Bilder",catNews:"News",catVid:"Videos",catForum:"Foren",
-      tabNeedsSearx:"Dieser Tab braucht eine SearXNG-Instanz. Trag sie unter Einstellungen ein – oder nutz den Alle-Tab und die Such-Buttons.",
-      loading:"Lädt…",viaSearx:"SearXNG"},
+      tabNeedsSearx:"Videos brauchen eine SearXNG-Instanz. Trag sie unter Einstellungen ein – oder nutz die Such-Buttons unten.",
+      loading:"Lädt…",viaSearx:"SearXNG",viaFree:"Frei & trackerfrei",
+      hnPts:"Punkte",hnCom:"Kommentare",answers:"Antworten",score:"Score"},
   en:{settings:"Settings",general:"General",name:"Your name",lang:"Language",greet:"Greeting",h12:"12-hour clock",sec:"Seconds",
+      clockfont:"Clock font",
       sugg:"Suggestions",know:"Knowledge card (Wikipedia)",
       ddgToggle:"DuckDuckGo Instant Answers",
-      ddgHint:"Free, tracker-free supplementary answers (definitions, calculator). Not a link list – those come from your SearXNG instance.",
-      instPh:"SearXNG instance, e.g. /searx",
-      instHint:"For real web results in the app you need a SearXNG instance with JSON enabled. Without one, FireBrave shows Wikipedia, DDG cards, and external search buttons.",
+      ddgHint:"Free, tracker-free supplementary answers (definitions, calculator).",
+      instPh:"Optional: SearXNG instance, e.g. /searx",
+      instHint:"Without an instance FireBrave uses free, tracker-free sources (Wikipedia, Wikimedia, Hacker News, Stack Overflow, Lemmy). With your own SearXNG instance (JSON enabled) you get Google-style results from the whole web incl. Reddit & videos.",
       wall:"Wallpaper",upload:"Your own image, GIF or video …",url:"…or paste image/video URL + Enter",fx:"Effect",amount:"Amount",
       look:"Appearance",dim:"Dim",blur:"Blur",reset:"Reset everything",search:"Search with FireBrave",namePh:"Optional",
       fxn:{none:"Off",snow:"Snow",rain:"Rain",stars:"Stars",fireflies:"Fireflies"},
       g:["Good night","Good morning","Good afternoon","Good evening"],
-      resFor:"Results for",via:"via",noTitle:"No in-app web results",
-      noBody:"Without your own SearXNG instance we can't show a link list here – other services block browser requests. Set an instance in settings, or search directly:",
+      resFor:"Results for",via:"via",noTitle:"No results found",
+      noBody:"The free sources returned nothing or are unreachable. Try other keywords, set a SearXNG instance, or keep searching directly:",
       setInst:"Set instance",moreOn:"Keep searching on",end:"No more results",wiki:"Read on Wikipedia",
       catAll:"All",catImg:"Images",catNews:"News",catVid:"Videos",catForum:"Forums",
-      tabNeedsSearx:"This tab needs a SearXNG instance. Add one in settings – or use the All tab and the search buttons.",
-      loading:"Loading…",viaSearx:"SearXNG"}
+      tabNeedsSearx:"Videos need a SearXNG instance. Add one in settings – or use the search buttons below.",
+      loading:"Loading…",viaSearx:"SearXNG",viaFree:"Free & tracker-free",
+      hnPts:"points",hnCom:"comments",answers:"answers",score:"score"}
 };
 
 const WALLS = [
@@ -377,16 +395,27 @@ const WALLS = [
 ];
 const FX = ["none","snow","rain","stars","fireflies"];
 
+/* 6 Uhr-Schriftarten (cs = Größenfaktor für breite Schriften, opsz = Fraunces-Optik) */
+const FONTS = [
+  {id:"fraunces", n:"Fraunces",       f:'"Fraunces",ui-serif,Georgia,serif',        cs:1,   opsz:true},
+  {id:"inter",    n:"Inter",          f:'"Inter",system-ui,sans-serif',             cs:1,   ls:"-.04em"},
+  {id:"grotesk",  n:"Space Grotesk",  f:'"Space Grotesk","Inter",sans-serif',       cs:.97, ls:"-.04em"},
+  {id:"mono",     n:"JetBrains Mono", f:'"JetBrains Mono",ui-monospace,monospace',  cs:.86, ls:"-.06em"},
+  {id:"orbitron", n:"Orbitron",       f:'"Orbitron","Inter",sans-serif',            cs:.74, ls:"0"},
+  {id:"playfair", n:"Playfair",       f:'"Playfair Display",Georgia,serif',         cs:.95, ls:"-.02em"}
+];
+
+/* forums braucht keine Instanz mehr (HN + Stack Overflow + Lemmy). Nur Videos braucht SearXNG. */
 const CATS = [
   { id:"general", cat:"general", needsSearx:false },
-  { id:"images",  cat:"images",  needsSearx:true, engines:"qwant,wikimedia" },
-  { id:"news",    cat:"news",    needsSearx:true  },
+  { id:"images",  cat:"images",  needsSearx:false, engines:"qwant,wikimedia" },
+  { id:"news",    cat:"news",    needsSearx:false },
   { id:"videos",  cat:"videos",  needsSearx:true  },
-  { id:"forums",  cat:"general", needsSearx:true, engines:"reddit,stackoverflow,askubuntu,superuser,hackernews,lemmy" }
+  { id:"forums",  cat:"general", needsSearx:false, engines:"reddit,stackoverflow,askubuntu,superuser,hackernews,lemmy" }
 ];
 const catLabel = id => ({ general:t().catAll, images:t().catImg, news:t().catNews, videos:t().catVid, forums:t().catForum }[id]);
 
-const DEF = {name:"",lang:"de",h12:false,sec:false,greet:true,wall:"dusk",url:"",fx:"snow",amount:45,dim:0,blur:0,instance:"",sugg:true,know:true,ddg:true};
+const DEF = {name:"",lang:"de",h12:false,sec:false,greet:true,wall:"dusk",url:"",fx:"snow",amount:45,dim:0,blur:0,instance:"",sugg:true,know:true,ddg:true,font:"fraunces"};
 let S = {...DEF};
 try { Object.assign(S, JSON.parse(localStorage.getItem("startpage") || "{}")); } catch(e){}
 const save = () => { try { localStorage.setItem("startpage", JSON.stringify(S)); } catch(e){} };
@@ -417,6 +446,28 @@ function tick(){
   if (!showingResults) document.title = h + ":" + m;
 }
 setInterval(tick, 1000);
+
+/* ====== Uhr-Schrift ====== */
+function applyFont(){
+  const f = FONTS.find(x => x.id === S.font) || FONTS[0];
+  const r = document.documentElement.style, tm = $("time").style;
+  r.setProperty("--clock", f.f);
+  r.setProperty("--cs", String(f.cs));
+  tm.fontVariationSettings = f.opsz ? '"opsz" 144' : "normal";
+  tm.letterSpacing = f.ls || "";
+  document.querySelectorAll(".fsw").forEach(b => b.classList.toggle("on", b.dataset.id === f.id));
+}
+function buildFonts(){
+  const box = $("fonts"); box.innerHTML = "";
+  FONTS.forEach(f => {
+    const b = el("button","fsw"); b.type = "button"; b.dataset.id = f.id; b.title = f.n;
+    const big = el("b","", "12:34"); big.style.fontFamily = f.f;
+    if (f.opsz) big.style.fontVariationSettings = '"opsz" 72';
+    b.append(big, el("span","", f.n));
+    b.onclick = () => { S.font = f.id; save(); applyFont(); };
+    box.appendChild(b);
+  });
+}
 
 let objUrl = null;
 const isVideo = u => /\.(mp4|webm|mov|m4v)(\?|#|$)/i.test(u);
@@ -657,6 +708,7 @@ function externalLinks(qs){
     ["Startpage", "https://www.startpage.com/sp/search?query=" + e],
     ["Mojeek", "https://www.mojeek.com/search?q=" + e],
     ["Marginalia", "https://search.marginalia.nu/search?query=" + e],
+    ["Reddit", "https://www.reddit.com/search/?q=" + e],
     ["Wikipedia", `https://${wl()}.wikipedia.org/w/index.php?search=` + e]
   ];
 }
@@ -743,7 +795,7 @@ async function wikiDirectUrl(query){
     const hit = j.query && j.query.search && j.query.search[0];
     if (!hit) return null;
     const title = hit.title;
-    
+
     const r2 = await fetch(`https://${wl()}.wikipedia.org/w/api.php?action=parse&page=${encodeURIComponent(title)}&prop=text&section=0&format=json&origin=*`, {credentials:"omit", referrerPolicy:"no-referrer"});
     const j2 = await r2.json();
     const html = j2.parse && j2.parse.text && j2.parse.text["*"];
@@ -752,7 +804,7 @@ async function wikiDirectUrl(query){
     const parser = new DOMParser();
     const doc = parser.parseFromString(html, "text/html");
     const links = doc.querySelectorAll(".infobox a.external.text, .official-website a, a.external.text");
-    
+
     for (const a of links){
       const href = a.href;
       if (href && /^https?:\/\//i.test(href) && !href.includes("wikipedia.org") && !href.includes("wikidata.org") && !href.includes("wikimedia.org") && !href.includes("ISBN") && !href.includes("Special:")) {
@@ -832,7 +884,9 @@ function ddgCard(d){
   return c;
 }
 
-/* SearXNG: die einzige In-App-Quelle. Gibt null zurück bei Fehler/keine Instanz. */
+/* ====== Quellen ====== */
+
+/* SearXNG (optional, echte Web-Ergebnisse). null bei Fehler/keine Instanz. */
 async function searchSearx(qs, page, engines){
   if (!S.instance) return null;
   const params = new URLSearchParams({ q:qs, format:"json", pageno:String(page), language:wl() });
@@ -853,84 +907,151 @@ async function searchSearx(qs, page, engines){
   } catch(e){ return null; }
 }
 
-async function loadInitial(st){
-  const statusEl = $("status"); if (statusEl) statusEl.textContent = t().loading;
-  st.list.innerHTML = "";
+/* Freie, trackerfreie, CORS-offene Quellen – laufen ohne eigenen Server. */
+const FOPT = {credentials:"omit", referrerPolicy:"no-referrer"};
+const plain = s => { try { return new DOMParser().parseFromString(String(s||""), "text/html").documentElement.textContent || ""; } catch(e){ return String(s||""); } };
+const trim = (s,n) => { s = String(s||"").replace(/\s+/g," ").trim(); return s.length > n ? s.slice(0,n-1) + "…" : s; };
+const jget = async u => { const r = await fetch(u, FOPT); if (!r.ok) throw 0; return r.json(); };
 
-  /* Nicht-General-Tabs: brauchen zwingend eine SearXNG-Instanz. */
-  if (st.cfg.needsSearx && !S.instance){
-    const n = el("article","card glass note");
-    n.append(el("h3","", t().noTitle), el("p","", t().tabNeedsSearx));
+async function freeWiki(qs, page){
+  const j = await jget(`https://${wl()}.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(qs)}&srlimit=10&sroffset=${(page-1)*10}&format=json&origin=*`);
+  const hits = (j.query && j.query.search) || [];
+  return hits.map(h => ({
+    title: h.title,
+    url: `https://${wl()}.wikipedia.org/wiki/` + encodeURIComponent(h.title.replace(/ /g,"_")),
+    content: trim(plain(h.snippet), 220), thumbnail:""
+  }));
+}
+async function freeHN(qs, page, byDate){
+  const ep = byDate ? "search_by_date" : "search";
+  const j = await jget(`https://hn.algolia.com/api/v1/${ep}?query=${encodeURIComponent(qs)}&tags=story&page=${page-1}&hitsPerPage=10`);
+  return (j.hits || []).filter(h => h.title).map(h => ({
+    title: h.title,
+    url: "https://news.ycombinator.com/item?id=" + h.objectID,
+    content: `Hacker News · ${h.points||0} ${t().hnPts} · ${h.num_comments||0} ${t().hnCom}` + (h.url ? " · " + h.url.replace(/^https?:\/\/(www\.)?/,"").split("/")[0] : ""),
+    thumbnail:""
+  }));
+}
+async function freeSO(qs, page){
+  const j = await jget(`https://api.stackexchange.com/2.3/search/advanced?order=desc&sort=relevance&q=${encodeURIComponent(qs)}&site=stackoverflow&pagesize=10&page=${page}`);
+  return (j.items || []).map(i => ({
+    title: plain(i.title),
+    url: i.link,
+    content: `Stack Overflow · ${i.score} ${t().score} · ${i.answer_count} ${t().answers}` + (i.tags && i.tags.length ? " · " + i.tags.slice(0,4).join(", ") : ""),
+    thumbnail:""
+  }));
+}
+async function freeLemmy(qs, page){
+  const j = await jget(`https://lemmy.world/api/v3/search?q=${encodeURIComponent(qs)}&type_=Posts&sort=TopAll&limit=10&page=${page}`);
+  return (j.posts || []).map(p => ({
+    title: p.post.name,
+    url: p.post.ap_id || p.post.url,
+    content: "Lemmy" + (p.community ? " · " + p.community.name : "") + " · " + trim(p.post.body || "", 160),
+    thumbnail:""
+  })).filter(x => x.url);
+}
+async function freeImages(qs, page){
+  const j = await jget(`https://commons.wikimedia.org/w/api.php?action=query&generator=search&gsrnamespace=6&gsrsearch=${encodeURIComponent(qs)}&gsrlimit=12&gsroffset=${(page-1)*12}&prop=imageinfo&iiprop=url&iiurlwidth=240&format=json&origin=*`);
+  const pages = Object.values((j.query && j.query.pages) || {}).sort((a,b) => a.index - b.index);
+  return pages.map(p => {
+    const ii = p.imageinfo && p.imageinfo[0]; if (!ii) return null;
+    return { title: p.title.replace(/^File:/,"").replace(/\.[a-z0-9]+$/i,"").replace(/_/g," "),
+             url: ii.descriptionurl, content:"Wikimedia Commons", thumbnail: ii.thumburl || ii.url };
+  }).filter(Boolean);
+}
+function interleave(lists){
+  const out = [], n = Math.max(0, ...lists.map(l => l.length));
+  for (let i=0;i<n;i++) lists.forEach(l => { if (l[i]) out.push(l[i]); });
+  return out;
+}
+async function searchFree(st, page){
+  const qs = st.q, id = st.cfg.id;
+  let lists = [];
+  if (id === "general") lists = [await freeWiki(qs, page).catch(()=>[])];
+  else if (id === "forums"){
+    const r = await Promise.allSettled([freeHN(qs,page,false), freeSO(qs,page), freeLemmy(qs,page)]);
+    lists = r.map(x => x.status === "fulfilled" ? x.value : []);
+  }
+  else if (id === "news") lists = [await freeHN(qs, page, true).catch(()=>[])];
+  else if (id === "images") lists = [await freeImages(qs, page).catch(()=>[])];
+  return interleave(lists);
+}
+
+/* Instanz zuerst; wenn nicht erreichbar -> freie Quellen. */
+async function getResults(st, page){
+  if (S.instance){
+    const r = await searchSearx(st.q, page, st.cfg.engines || "");
+    if (r !== null) return { items:r, via:"searx" };
+  }
+  if (st.cfg.needsSearx) return null;
+  return { items: await searchFree(st, page), via:"free" };
+}
+
+function noteCard(st, title, body, withBtn){
+  const n = el("article","card glass note");
+  n.append(el("h3","", title));
+  if (body) n.append(el("p","", body));
+  if (withBtn){
     const btn = el("button","btn", t().setInst);
     btn.style.marginBottom = "14px";
     btn.onclick = () => setPanel(true);
-    n.append(btn, chips(st.q));
-    st.list.appendChild(n); reveal(n, 0);
-    st.done = true; return;
+    n.append(btn);
   }
+  n.append(chips(st.q));
+  st.list.appendChild(n); reveal(n, 0);
+}
 
-  const results = await searchSearx(st.q, 1, st.cfg.engines || "");
-  if (st.my !== token) return;
-
-  if (results === null){
-    /* Kein Backend oder Instanz nicht erreichbar. */
-    const n = el("article","card glass note");
-    n.append(el("h3","", t().noTitle), el("p","", t().noBody));
-    const btn = el("button","btn", t().setInst);
-    btn.style.marginBottom = "14px";
-    btn.onclick = () => setPanel(true);
-    n.append(btn, chips(st.q));
-    st.list.appendChild(n); reveal(n, 0);
-    st.meta.textContent = `${t().resFor} „${st.q}“`;
-    st.done = true;
-    if (statusEl) statusEl.textContent = t().noTitle;
-    return;
-  }
-
-  if (results.length === 0){
-    const n = el("article","card glass note");
-    n.append(el("h3","", t().noTitle), chips(st.q));
-    st.list.appendChild(n); reveal(n, 0);
-    st.done = true;
-    if (statusEl) statusEl.textContent = t().end;
-    return;
-  }
-
+function addCards(st, items){
   let added = 0;
-  results.forEach(r => {
+  items.forEach(r => {
     if (!r.url || st.seen.has(r.url)) return;
     st.seen.add(r.url);
     const c = webCard(r, st.cat);
     if (!c) return;
     st.list.appendChild(c); reveal(c, added++);
   });
+  return added;
+}
+
+async function loadInitial(st){
+  const statusEl = $("status"); if (statusEl) statusEl.textContent = t().loading;
+  st.list.innerHTML = "";
+
+  if (st.cfg.needsSearx && !S.instance){
+    noteCard(st, t().noTitle, t().tabNeedsSearx, true);
+    st.done = true; return;
+  }
+
+  const res = await getResults(st, 1);
+  if (st.my !== token) return;
+
+  if (!res || !res.items.length){
+    noteCard(st, t().noTitle, t().noBody, true);
+    st.done = true;
+    if (statusEl) statusEl.textContent = t().noTitle;
+    return;
+  }
+
+  st.via = res.via;
+  const added = addCards(st, res.items);
   st.count = added;
   st.loading = false;
-  st.meta.textContent = `${t().resFor} „${st.q}“ · ${t().viaSearx}`;
+  st.meta.textContent = `${t().resFor} „${st.q}“ · ${res.via === "searx" ? t().viaSearx : t().viaFree}`;
   io2.observe(st.sent);
   if (statusEl) statusEl.textContent = `${st.count} ${t().resFor} ${st.q}`;
 }
 
 async function loadMore(st){
   if (st.loading || st.done || st.my !== token) return;
-  if (!S.instance) return;
   st.loading = true;
   st.page++;
-  const page = st.page + 1;
-  const results = await searchSearx(st.q, page, st.cfg.engines || "");
+  const res = await getResults(st, st.page + 1);
   if (st.my !== token) return;
-  if (!results || !results.length){
+  if (!res || !res.items.length){
     st.done = true; st.loading = false; io2.unobserve(st.sent);
     return;
   }
-  let added = 0;
-  results.forEach(r => {
-    if (!r.url || st.seen.has(r.url)) return;
-    st.seen.add(r.url);
-    const c = webCard(r, st.cat);
-    if (!c) return;
-    st.list.appendChild(c); reveal(c, added++);
-  });
+  const added = addCards(st, res.items);
   st.count += added;
   st.loading = false;
   if (!added) st.done = true;
@@ -1042,6 +1163,7 @@ function buildUI(){
   });
   $("segLang").querySelectorAll("button").forEach(b => b.classList.toggle("on", b.dataset.v === S.lang));
   document.querySelectorAll(".wsw").forEach(b => b.classList.toggle("on", b.dataset.id === S.wall));
+  buildFonts(); applyFont();
 }
 
 $("inName").value = S.name;
